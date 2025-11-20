@@ -1,24 +1,54 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import dynamic from 'next/dynamic';
-import type { GraphData, GraphNode } from '@/lib/types/blockchain';
-
-// Dynamic import to avoid SSR issues with react-force-graph-2d
-const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), {
-  ssr: false,
-});
+import {
+  ReactFlow,
+  Node,
+  Edge,
+  useNodesState,
+  useEdgesState,
+  Background,
+  ReactFlowProvider,
+  useReactFlow,
+} from '@xyflow/react';
+import {
+  forceSimulation,
+  forceManyBody,
+  forceLink,
+  forceCenter,
+  forceCollide,
+  SimulationNodeDatum,
+  SimulationLinkDatum,
+} from 'd3-force';
+import type { GraphData, GraphNode as BlockchainGraphNode } from '@/lib/types/blockchain';
+import '@xyflow/react/dist/style.css';
 
 interface BlockchainGraphProps {
   graphData: GraphData;
-  selectedNode: GraphNode | null;
-  onNodeClick?: (node: GraphNode | null) => void;
-  onNodeHover?: (node: GraphNode | null) => void;
+  selectedNode: BlockchainGraphNode | null;
+  onNodeClick?: (node: BlockchainGraphNode | null) => void;
+  onNodeHover?: (node: BlockchainGraphNode | null) => void;
   loading?: boolean;
   height?: number;
 }
 
-export default function BlockchainGraph({
+// Extended node type for d3-force simulation
+interface SimulationNode extends SimulationNodeDatum {
+  id: string;
+  label?: string;
+  balance?: number;
+  txCount?: number;
+}
+
+// Extended link type for d3-force simulation
+interface SimulationLink extends SimulationLinkDatum<SimulationNode> {
+  source: string;
+  target: string;
+  value: number;
+  txHash: string;
+}
+
+function BlockchainGraphInner({
   graphData,
   selectedNode,
   onNodeClick,
@@ -26,55 +56,220 @@ export default function BlockchainGraph({
   loading = false,
   height = 600,
 }: BlockchainGraphProps) {
-  const graphRef = useRef<any>(null);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [highlightedNode, setHighlightedNode] = useState<string | null>(null);
+  const simulationRef = useRef<any>(null);
+  const tickCountRef = useRef<number>(0);
+  const { fitView } = useReactFlow();
 
-  // Handle node click
-  const handleNodeClick = useCallback(
-    (node: any) => {
-      const clickedNode = graphData.nodes.find((n) => n.id === node.id);
-      onNodeClick?.(clickedNode || null);
+  // Convert blockchain graph data to React Flow format
+  const convertToReactFlowFormat = (data: GraphData, selectedId?: string, highlightedId?: string) => {
+    // Create nodes in React Flow format
+    const rfNodes: Node[] = data.nodes.map((node) => {
+      const size = node.txCount ? Math.min(30 + node.txCount / 2, 80) : 30;
       
-      // Center on clicked node
-      if (graphRef.current) {
-        graphRef.current.centerAt(node.x, node.y, 1000);
-      }
-    },
-    [graphData.nodes, onNodeClick],
-  );
+      return {
+        id: node.id,
+        type: 'default',
+        position: { x: node.x || Math.random() * 800, y: node.y || Math.random() * 600 },
+        data: {
+          label: node.label || node.id.substring(0, 8) + '...',
+          balance: node.balance,
+          txCount: node.txCount,
+          fullId: node.id,
+        },
+        style: {
+          background: selectedId === node.id ? '#ef4444' : 
+                     highlightedId === node.id ? '#3b82f6' : '#6b7280',
+          color: '#fff',
+          border: '2px solid #1f2937',
+          borderRadius: '50%',
+          width: size,
+          height: size,
+          fontSize: '10px',
+          padding: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+      };
+    });
 
-  // Handle node hover
-  const handleNodeHover = useCallback(
-    (node: any | null) => {
-      if (node) {
-        setHighlightedNode(node.id);
-        const hoveredNode = graphData.nodes.find((n) => n.id === node.id);
-        onNodeHover?.(hoveredNode || null);
-      } else {
-        setHighlightedNode(null);
-        onNodeHover?.(null);
-      }
-    },
-    [graphData.nodes, onNodeHover],
-  );
+    // Create edges in React Flow format
+    const rfEdges: Edge[] = data.links.map((link, index) => {
+      const valueInBTC = link.value / 100000000;
+      const width = Math.min(Math.max(valueInBTC / 10, 1), 5);
+      
+      return {
+        id: `${link.source}-${link.target}-${index}`,
+        source: link.source,
+        target: link.target,
+        type: 'straight',
+        animated: false,
+        style: {
+          stroke: '#94a3b8',
+          strokeWidth: width,
+        },
+        markerEnd: {
+          type: 'arrowclosed',
+          color: '#94a3b8',
+          width: 20,
+          height: 20,
+        },
+        data: {
+          value: link.value,
+          txHash: link.txHash,
+        },
+      };
+    });
 
-  // Highlight selected node
+    return { nodes: rfNodes, edges: rfEdges };
+  };
+
+  // Initialize and run force simulation
   useEffect(() => {
-    if (selectedNode && graphRef.current) {
-      const node = graphData.nodes.find((n) => n.id === selectedNode.id);
-      if (node && graphRef.current) {
-        // Center on selected node after a short delay
-        // Use the node from graphData directly instead of getGraphData()
+    if (graphData.nodes.length === 0) return;
+
+    const { nodes: rfNodes, edges: rfEdges } = convertToReactFlowFormat(graphData, selectedNode?.id, highlightedNode || undefined);
+    
+    // Create simulation nodes and links
+    const simNodes: SimulationNode[] = graphData.nodes.map((node) => ({
+      id: node.id,
+      label: node.label,
+      balance: node.balance,
+      txCount: node.txCount,
+      x: node.x,
+      y: node.y,
+    }));
+
+    const simLinks: SimulationLink[] = graphData.links.map((link) => ({
+      source: link.source,
+      target: link.target,
+      value: link.value,
+      txHash: link.txHash,
+    }));
+
+    // Stop previous simulation if exists
+    if (simulationRef.current) {
+      simulationRef.current.stop();
+    }
+
+    // Reset tick counter
+    tickCountRef.current = 0;
+    const maxTicks = 150;
+
+    // Create new force simulation with controlled cooldown
+    const simulation = forceSimulation(simNodes)
+      .force('charge', forceManyBody().strength(-300))
+      .force('link', forceLink(simLinks).id((d: any) => d.id).distance(100))
+      .force('center', forceCenter(400, 300))
+      .force('collide', forceCollide().radius(40))
+      .alphaMin(0.001)
+      .alphaDecay(0.02);
+
+    simulation.on('tick', () => {
+      tickCountRef.current++;
+      
+      // Stop simulation after max ticks
+      if (tickCountRef.current >= maxTicks) {
+        simulation.stop();
+        // Fit view after simulation stops
         setTimeout(() => {
-          if (graphRef.current) {
-            // Find the node in the rendered graph to get its current position
-            // We'll use zoomToFit to center on the node instead
-            graphRef.current.zoomToFit(400, 20, (node: any) => node.id === selectedNode.id);
+          fitView({ padding: 0.2, duration: 400 });
+        }, 100);
+      }
+      
+      // Update node positions
+      setNodes((nds) =>
+        nds.map((node) => {
+          const simNode = simNodes.find((n) => n.id === node.id);
+          if (simNode) {
+            return {
+              ...node,
+              position: { x: simNode.x || 0, y: simNode.y || 0 },
+            };
           }
+          return node;
+        })
+      );
+    });
+
+    // Set initial nodes and edges
+    setNodes(rfNodes);
+    setEdges(rfEdges);
+
+    // Store simulation reference
+    simulationRef.current = simulation;
+
+    // Cleanup
+    return () => {
+      if (simulationRef.current) {
+        simulationRef.current.stop();
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [graphData]);
+
+  // Update node styles when selection or highlight changes
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        const size = node.data.txCount ? Math.min(30 + node.data.txCount / 2, 80) : 30;
+        return {
+          ...node,
+          style: {
+            ...node.style,
+            background: selectedNode?.id === node.id ? '#ef4444' : 
+                       highlightedNode === node.id ? '#3b82f6' : '#6b7280',
+            width: size,
+            height: size,
+          },
+        };
+      })
+    );
+  }, [selectedNode, highlightedNode, setNodes]);
+
+  // Center on selected node
+  useEffect(() => {
+    if (selectedNode) {
+      const node = nodes.find((n) => n.id === selectedNode.id);
+      if (node) {
+        setTimeout(() => {
+          fitView({ 
+            padding: 0.2, 
+            duration: 400,
+            nodes: [node],
+          });
         }, 100);
       }
     }
-  }, [selectedNode, graphData.nodes]);
+  }, [selectedNode, nodes, fitView]);
+
+  // Handle node click
+  const handleNodeClick = useCallback(
+    (_event: React.MouseEvent, node: Node) => {
+      const clickedNode = graphData.nodes.find((n) => n.id === node.id);
+      onNodeClick?.(clickedNode || null);
+    },
+    [graphData.nodes, onNodeClick]
+  );
+
+  // Handle node mouse enter (hover)
+  const handleNodeMouseEnter = useCallback(
+    (_event: React.MouseEvent, node: Node) => {
+      setHighlightedNode(node.id);
+      const hoveredNode = graphData.nodes.find((n) => n.id === node.id);
+      onNodeHover?.(hoveredNode || null);
+    },
+    [graphData.nodes, onNodeHover]
+  );
+
+  // Handle node mouse leave
+  const handleNodeMouseLeave = useCallback(() => {
+    setHighlightedNode(null);
+    onNodeHover?.(null);
+  }, [onNodeHover]);
 
   if (loading) {
     return (
@@ -102,48 +297,21 @@ export default function BlockchainGraph({
   }
 
   return (
-    <div className="relative rounded-lg border border-gray-300 bg-white">
-      <ForceGraph2D
-        ref={graphRef}
-        graphData={graphData}
-        nodeLabel={(node: any) => `${node.label || node.id}\n${node.balance ? `${(node.balance / 100000000).toFixed(8)} BTC` : ''}`}
-        nodeColor={(node: any) => {
-          if (selectedNode?.id === node.id) {
-            return '#ef4444'; // Red for selected
-          }
-          if (highlightedNode === node.id) {
-            return '#3b82f6'; // Blue for highlighted
-          }
-          return '#6b7280'; // Gray for default
-        }}
-        nodeVal={(node: any) => {
-          // Node size based on transaction count or balance
-          const baseSize = 5;
-          if (node.txCount) {
-            return Math.min(baseSize + node.txCount / 10, 20);
-          }
-          return baseSize;
-        }}
-        linkColor={(link: any) => '#94a3b8'}
-        linkWidth={(link: any) => {
-          // Link width based on transaction value
-          const valueInBTC = link.value / 100000000;
-          return Math.min(Math.max(valueInBTC / 10, 1), 5);
-        }}
-        linkDirectionalArrowLength={6}
-        linkDirectionalArrowRelPos={1}
-        linkCurvature={0.1}
+    <div className="relative rounded-lg border border-gray-300 bg-white" style={{ height }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
         onNodeClick={handleNodeClick}
-        onNodeHover={handleNodeHover}
-        cooldownTicks={100}
-        onEngineStop={() => {
-          if (graphRef.current) {
-            graphRef.current.zoomToFit(400, 20);
-          }
-        }}
-        width={undefined}
-        height={height}
-      />
+        onNodeMouseEnter={handleNodeMouseEnter}
+        onNodeMouseLeave={handleNodeMouseLeave}
+        fitView
+        attributionPosition="bottom-right"
+        proOptions={{ hideAttribution: true }}
+      >
+        <Background />
+      </ReactFlow>
       <div className="absolute bottom-4 left-4 rounded bg-black/70 px-3 py-1 text-xs text-white">
         {graphData.nodes.length} nodes • {graphData.links.length} links
       </div>
@@ -151,3 +319,10 @@ export default function BlockchainGraph({
   );
 }
 
+export default function BlockchainGraph(props: BlockchainGraphProps) {
+  return (
+    <ReactFlowProvider>
+      <BlockchainGraphInner {...props} />
+    </ReactFlowProvider>
+  );
+}

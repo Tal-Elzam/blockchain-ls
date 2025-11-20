@@ -77,6 +77,8 @@ export interface GraphNode {
   label?: string;
   balance?: number; // Balance in satoshis
   txCount?: number; // Number of transactions
+  x?: number; // X position for React Flow
+  y?: number; // Y position for React Flow
 }
 
 // Graph link representing a transaction between addresses
@@ -88,7 +90,7 @@ export interface GraphLink {
   timestamp?: number; // Transaction timestamp
 }
 
-// Graph data structure for react-force-graph-2d
+// Graph data structure for React Flow
 export interface GraphData {
   nodes: GraphNode[];
   links: GraphLink[];

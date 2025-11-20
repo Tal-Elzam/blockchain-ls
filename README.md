@@ -138,6 +138,19 @@ We use [T3 Env](https://env.t3.gg/) to manage environment variables. Create a `.
 
 When adding additional environment variables, the schema in `./src/lib/env/client.ts` or `./src/lib/env/server.ts` should be updated accordingly.
 
+#### Frontend Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+# Backend API URL (default: http://localhost:8000)
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+```
+
+#### Backend Environment Variables
+
+See `backend/.env.example` for backend environment variables configuration.
+
 ### Redirects
 
 To add redirects, update the `redirects` array in `./redirects.ts`. It's typed, so you'll get autocompletion for the properties.

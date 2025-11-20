@@ -9,11 +9,9 @@ import type {
   ApiLogEntry,
 } from '../types/blockchain';
 
-// Use Next.js API routes as proxy (server-side) instead of direct backend calls
-// This hides the backend URL from the client and allows better control
-const API_BASE_URL = typeof window !== 'undefined' 
-  ? '' // Client-side: use relative URLs (Next.js will proxy)
-  : process.env.BACKEND_URL || 'http://localhost:8000'; // Server-side: direct backend
+// Direct backend API calls from the browser
+// Using NEXT_PUBLIC_ prefix to expose the backend URL to the client
+const BACKEND_URL = clientEnv.NEXT_PUBLIC_BACKEND_URL;
 
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
 
@@ -113,8 +111,8 @@ export async function fetchAddressDetails(
   offset = 0,
   timeoutMs = DEFAULT_TIMEOUT,
 ): Promise<AddressResponse> {
-  // Use Next.js API route as proxy
-  const url = `/api/address/${address}?limit=${limit}&offset=${offset}`;
+  // Direct call to Python backend
+  const url = `${BACKEND_URL}/api/address/${address}?limit=${limit}&offset=${offset}`;
 
   try {
     const response = await fetchWithTimeout(
@@ -149,8 +147,8 @@ export async function fetchAddressGraph(
   offset = 0,
   timeoutMs = DEFAULT_TIMEOUT,
 ): Promise<GraphData> {
-  // Use Next.js API route as proxy
-  const url = `/api/address/${address}/graph?limit=${limit}&offset=${offset}`;
+  // Direct call to Python backend
+  const url = `${BACKEND_URL}/api/address/${address}/graph?limit=${limit}&offset=${offset}`;
 
   try {
     const response = await fetchWithTimeout(
@@ -199,8 +197,8 @@ export async function checkBackendHealth(): Promise<boolean> {
     const timeoutId = setTimeout(() => controller.abort(), 3000);
     
     try {
-      // Use Next.js API route as proxy
-      const response = await fetch(`/api/health`, {
+      // Direct call to Python backend
+      const response = await fetch(`${BACKEND_URL}/health`, {
         method: 'GET',
         signal: controller.signal,
       });

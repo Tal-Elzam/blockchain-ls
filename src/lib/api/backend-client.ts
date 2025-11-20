@@ -188,33 +188,3 @@ export async function fetchAddressGraph(
   }
 }
 
-/**
- * Health check endpoint
- */
-export async function checkBackendHealth(): Promise<boolean> {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
-    
-    try {
-      // Direct call to Python backend
-      const response = await fetch(`${BACKEND_URL}/health`, {
-        method: 'GET',
-        signal: controller.signal,
-      });
-      
-      clearTimeout(timeoutId);
-      return response.ok;
-    } catch (error) {
-      clearTimeout(timeoutId);
-      // Ignore abort errors for health check
-      if (error instanceof Error && error.name === 'AbortError') {
-        return false;
-      }
-      return false;
-    }
-  } catch {
-    return false;
-  }
-}
-

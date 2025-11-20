@@ -5,7 +5,6 @@
 import {
   fetchAddressDetails,
   fetchAddressGraph,
-  checkBackendHealth,
   getApiLog,
   clearApiLog,
 } from '../api/backend-client';
@@ -166,13 +165,6 @@ export class BlockchainService {
   }
 
   /**
-   * Check if backend is healthy
-   */
-  static async isBackendHealthy(): Promise<boolean> {
-    return checkBackendHealth();
-  }
-
-  /**
    * Get API log entries
    */
   static getApiLog(): ApiLogEntry[] {
@@ -191,7 +183,6 @@ export class BlockchainService {
 export {
   fetchAddressDetails,
   fetchAddressGraph,
-  checkBackendHealth,
   getApiLog,
   clearApiLog,
 };

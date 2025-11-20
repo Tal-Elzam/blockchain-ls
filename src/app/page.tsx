@@ -17,27 +17,6 @@ export default function Home() {
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [backendHealthy, setBackendHealthy] = useState<boolean | null>(null);
-
-  // Check backend health on mount and periodically
-  useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        const isHealthy = await BlockchainService.isBackendHealthy();
-        setBackendHealthy(isHealthy);
-      } catch (error) {
-        setBackendHealthy(false);
-      }
-    };
-    
-    // Check immediately
-    checkHealth();
-    
-    // Check every 5 seconds
-    const interval = setInterval(checkHealth, 5000);
-    
-    return () => clearInterval(interval);
-  }, []);
 
   const handleSearch = useCallback(async () => {
     const trimmedAddress = inputValue.trim();
@@ -119,29 +98,13 @@ export default function Home() {
         {/* Header */}
         <header className="border-b border-gray-200 bg-white shadow-sm">
           <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Blockchain Investigator
-                </h1>
-                <p className="text-sm text-gray-600">
-                  Visualize Bitcoin blockchain transactions
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                {backendHealthy !== null && (
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`h-2 w-2 rounded-full ${
-                        backendHealthy ? 'bg-green-500' : 'bg-red-500'
-                      }`}
-                    ></div>
-                    <span className="text-xs text-gray-600">
-                      {backendHealthy ? 'Backend Online' : 'Backend Offline'}
-                    </span>
-                  </div>
-                )}
-              </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Blockchain Investigator
+              </h1>
+              <p className="text-sm text-gray-600">
+                Visualize Bitcoin blockchain transactions
+              </p>
             </div>
           </div>
         </header>

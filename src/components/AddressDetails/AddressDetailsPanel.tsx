@@ -25,7 +25,7 @@ export default function AddressDetailsPanel({
       setError(null);
       setOffset(0);
       
-      BlockchainService.getAddressDetails(selectedNode.id, 50, 0)
+      BlockchainService.getAddressDetails(selectedNode.id, 10, 0)
         .then((data) => {
           setAddressData(data);
           setError(null);
@@ -50,13 +50,13 @@ export default function AddressDetailsPanel({
   const handleLoadMore = async () => {
     if (!selectedNode || !addressData) return;
     
-    const newOffset = offset + 50;
+    const newOffset = offset + 10;
     setLoading(true);
     
     try {
       const newData = await BlockchainService.getAddressDetails(
         selectedNode.id,
-        50,
+        10,
         newOffset,
       );
       
@@ -85,7 +85,7 @@ export default function AddressDetailsPanel({
   return (
     <div className="rounded-lg border border-gray-300 bg-white p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Address Details</h3>
+        <h3 className="text-lg font-semibold" style={{ color: '#1c272f' }}>Address Details</h3>
         <button
           onClick={() => {
             setAddressData(null);
@@ -115,7 +115,7 @@ export default function AddressDetailsPanel({
           {/* Address */}
           <div>
             <label className="text-xs font-medium text-gray-500">Address</label>
-            <p className="break-all font-mono text-sm">{addressData.address}</p>
+            <p className="break-all font-mono text-sm" style={{ color: '#1c272f' }}>{addressData.address}</p>
           </div>
 
           {/* Balance */}
@@ -124,7 +124,7 @@ export default function AddressDetailsPanel({
               <label className="text-xs font-medium text-gray-500">
                 Final Balance
               </label>
-              <p className="text-lg font-semibold">
+              <p className="text-lg font-semibold" style={{ color: '#1c272f' }}>
                 {formatSatoshisToBTC(addressData.final_balance)} BTC
               </p>
             </div>
@@ -132,7 +132,7 @@ export default function AddressDetailsPanel({
               <label className="text-xs font-medium text-gray-500">
                 Total Received
               </label>
-              <p className="text-sm">
+              <p className="text-sm" style={{ color: '#1c272f' }}>
                 {formatSatoshisToBTC(addressData.total_received)} BTC
               </p>
             </div>
@@ -144,19 +144,19 @@ export default function AddressDetailsPanel({
               <label className="text-xs font-medium text-gray-500">
                 Total TXs
               </label>
-              <p className="text-lg font-semibold">{addressData.n_tx}</p>
+              <p className="text-lg font-semibold" style={{ color: '#1c272f' }}>{addressData.n_tx}</p>
             </div>
             <div>
               <label className="text-xs font-medium text-gray-500">
                 Loaded TXs
               </label>
-              <p className="text-lg font-semibold">{addressData.txs.length}</p>
+              <p className="text-lg font-semibold" style={{ color: '#1c272f' }}>{addressData.txs.length}</p>
             </div>
             <div>
               <label className="text-xs font-medium text-gray-500">
                 Unredeemed
               </label>
-              <p className="text-lg font-semibold">
+              <p className="text-lg font-semibold" style={{ color: '#1c272f' }}>
                 {addressData.n_unredeemed}
               </p>
             </div>
@@ -168,21 +168,21 @@ export default function AddressDetailsPanel({
               <label className="mb-2 block text-xs font-medium text-gray-500">
                 Recent Transactions ({addressData.txs.length})
               </label>
-              <div className="max-h-96 space-y-2 overflow-y-auto">
-                {addressData.txs.slice(0, 10).map((tx) => (
+              <div className="max-h-[400px] space-y-2 overflow-y-auto">
+                {addressData.txs.map((tx) => (
                   <div
                     key={tx.hash}
                     className="rounded border border-gray-200 p-2 text-xs"
                   >
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="font-mono text-xs">
+                      <span className="font-mono text-xs" style={{ color: '#1c272f' }}>
                         {tx.hash.slice(0, 16)}...
                       </span>
                       <span className="text-gray-500">
                         {formatTimestamp(tx.time)}
                       </span>
                     </div>
-                    <div className="text-gray-600">
+                    <div style={{ color: '#1c272f' }}>
                       {tx.result && tx.result > 0 ? '+' : ''}
                       {formatSatoshisToBTC(tx.result || 0)} BTC
                     </div>
@@ -197,7 +197,7 @@ export default function AddressDetailsPanel({
                   disabled={loading}
                   className="mt-3 w-full rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:bg-gray-400"
                 >
-                  {loading ? 'Loading...' : 'Load More Transactions'}
+                  {loading ? 'Loading...' : 'Load 10 More Transactions'}
                 </button>
               )}
             </div>

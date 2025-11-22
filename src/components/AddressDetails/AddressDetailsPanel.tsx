@@ -197,7 +197,7 @@ export default function AddressDetailsPanel({
                   disabled={loading}
                   className="mt-3 w-full rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:bg-gray-400"
                 >
-                  {loading ? 'Loading...' : 'Load 10 More Transactions'}
+                  {loading ? 'Loading...' : 'Load More Transactions'}
                 </button>
               )}
             </div>
@@ -207,4 +207,3 @@ export default function AddressDetailsPanel({
     </div>
   );
 }
-

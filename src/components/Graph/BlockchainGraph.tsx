@@ -10,6 +10,7 @@ import {
   Background,
   ReactFlowProvider,
   useReactFlow,
+  MarkerType,
 } from '@xyflow/react';
 import {
   forceSimulation,
@@ -56,12 +57,11 @@ function BlockchainGraphInner({
   loading = false,
   height = 600,
 }: BlockchainGraphProps) {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [highlightedNode, setHighlightedNode] = useState<string | null>(null);
   const simulationRef = useRef<any>(null);
   const tickCountRef = useRef<number>(0);
-  const { fitView } = useReactFlow();
 
   // Convert blockchain graph data to React Flow format
   const convertToReactFlowFormat = (data: GraphData, selectedId?: string, highlightedId?: string) => {
@@ -108,14 +108,14 @@ function BlockchainGraphInner({
         type: 'straight',
         animated: false,
         style: {
-          stroke: '#94a3b8',
+          stroke: '#475569',
           strokeWidth: width,
         },
         markerEnd: {
-          type: 'arrowclosed',
-          color: '#94a3b8',
-          width: 20,
-          height: 20,
+          type: MarkerType.ArrowClosed,
+          color: '#475569',
+          width: 30,
+          height: 30,
         },
         data: {
           value: link.value,
@@ -174,10 +174,6 @@ function BlockchainGraphInner({
       // Stop simulation after max ticks
       if (tickCountRef.current >= maxTicks) {
         simulation.stop();
-        // Fit view after simulation stops
-        setTimeout(() => {
-          fitView({ padding: 0.2, duration: 400 });
-        }, 100);
       }
       
       // Update node positions
@@ -215,7 +211,7 @@ function BlockchainGraphInner({
   useEffect(() => {
     setNodes((nds) =>
       nds.map((node) => {
-        const size = node.data.txCount ? Math.min(30 + node.data.txCount / 2, 80) : 30;
+        const size = node.data.txCount ? Math.min(30 + (node.data.txCount as number) / 2, 80) : 30;
         return {
           ...node,
           style: {
@@ -234,17 +230,9 @@ function BlockchainGraphInner({
   useEffect(() => {
     if (selectedNode) {
       const node = nodes.find((n) => n.id === selectedNode.id);
-      if (node) {
-        setTimeout(() => {
-          fitView({ 
-            padding: 0.2, 
-            duration: 400,
-            nodes: [node],
-          });
-        }, 100);
-      }
+      // Node centering removed
     }
-  }, [selectedNode, nodes, fitView]);
+  }, [selectedNode, nodes]);
 
   // Handle node click
   const handleNodeClick = useCallback(
@@ -306,7 +294,6 @@ function BlockchainGraphInner({
         onNodeClick={handleNodeClick}
         onNodeMouseEnter={handleNodeMouseEnter}
         onNodeMouseLeave={handleNodeMouseLeave}
-        fitView
         attributionPosition="bottom-right"
         proOptions={{ hideAttribution: true }}
       >

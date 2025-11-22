@@ -94,7 +94,7 @@ export default function Home() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gray-50">
+      <div className="flex min-h-screen flex-col bg-gray-50">
         {/* Header */}
         <header className="border-b border-gray-200 bg-white shadow-sm">
           <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
@@ -110,7 +110,7 @@ export default function Home() {
         </header>
 
         {/* Main Content */}
-        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <main className="flex-1 mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           {/* Search Section */}
           <div className="mb-6 rounded-lg border border-gray-300 bg-white p-4 shadow-sm">
             <div className="flex gap-4">
@@ -196,8 +196,8 @@ export default function Home() {
         <ApiLogWindow />
 
         {/* Footer */}
-        <footer className="border-t border-gray-200 bg-white py-4">
-          <div className="mx-auto max-w-7xl px-4 text-center text-sm text-gray-600">
+        <footer className="border-t border-gray-200 bg-white flex items-center justify-center py-2" style={{ minHeight: '60px' }}>
+          <div className="text-center text-sm text-gray-600">
             Blockchain Investigator - Built with Next.js & FastAPI
           </div>
         </footer>

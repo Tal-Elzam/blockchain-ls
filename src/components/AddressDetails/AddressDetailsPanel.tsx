@@ -75,7 +75,7 @@ export default function AddressDetailsPanel({
 
   if (!selectedNode) {
     return (
-      <div className="rounded-lg border border-gray-300 bg-white p-4">
+      <div className="rounded-lg border border-gray-300 bg-white p-4 h-[700px] w-full flex flex-col items-center justify-center">
         <h3 className="mb-2 text-lg font-semibold">Address Details</h3>
         <p className="text-gray-500">Select a node to view details</p>
       </div>
@@ -83,7 +83,7 @@ export default function AddressDetailsPanel({
   }
 
   return (
-    <div className="rounded-lg border border-gray-300 bg-white p-4">
+    <div className="rounded-lg border border-gray-300 bg-white p-4 h-[700px] w-full flex flex-col">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold" style={{ color: '#1c272f' }}>Address Details</h3>
         <button
@@ -98,9 +98,11 @@ export default function AddressDetailsPanel({
       </div>
 
       {loading && !addressData && (
-        <div className="py-8 text-center">
-          <div className="mb-2 inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-blue-600 border-r-transparent"></div>
-          <p className="text-sm text-gray-600">Loading...</p>
+        <div className="flex-1 flex items-center justify-center py-8">
+          <div className="text-center">
+            <div className="mb-2 inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-blue-600 border-r-transparent"></div>
+            <p className="text-sm text-gray-600">Loading...</p>
+          </div>
         </div>
       )}
 
@@ -111,7 +113,7 @@ export default function AddressDetailsPanel({
       )}
 
       {addressData && (
-        <div className="space-y-4">
+        <div className="flex flex-col flex-1 space-y-4 min-h-0">
           {/* Address */}
           <div>
             <label className="text-xs font-medium text-gray-500">Address</label>
@@ -164,25 +166,25 @@ export default function AddressDetailsPanel({
 
           {/* Transactions List */}
           {addressData.txs.length > 0 && (
-            <div>
+            <div className="flex flex-col flex-1 min-h-0">
               <label className="mb-2 block text-xs font-medium text-gray-500">
                 Recent Transactions ({addressData.txs.length})
               </label>
-              <div className="max-h-[400px] space-y-2 overflow-y-auto">
+              <div className="flex-1 space-y-3 overflow-y-auto min-h-0">
                 {addressData.txs.map((tx) => (
                   <div
                     key={tx.hash}
-                    className="rounded border border-gray-200 p-2 text-xs"
+                    className="rounded border border-gray-200 p-3 text-sm"
                   >
-                    <div className="mb-1 flex items-center justify-between">
-                      <span className="font-mono text-xs" style={{ color: '#1c272f' }}>
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="font-mono text-sm" style={{ color: '#1c272f' }}>
                         {tx.hash.slice(0, 16)}...
                       </span>
-                      <span className="text-gray-500">
+                      <span className="text-gray-500 text-xs">
                         {formatTimestamp(tx.time)}
                       </span>
                     </div>
-                    <div style={{ color: '#1c272f' }}>
+                    <div className="text-base font-medium" style={{ color: '#1c272f' }}>
                       {tx.result && tx.result > 0 ? '+' : ''}
                       {formatSatoshisToBTC(tx.result || 0)} BTC
                     </div>
@@ -195,7 +197,7 @@ export default function AddressDetailsPanel({
                 <button
                   onClick={handleLoadMore}
                   disabled={loading}
-                  className="mt-3 w-full rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:bg-gray-400"
+                  className="w-full rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:bg-gray-400"
                 >
                   {loading ? 'Loading...' : 'Load More Transactions'}
                 </button>

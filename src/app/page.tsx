@@ -94,25 +94,23 @@ export default function Home() {
 
   return (
     <ErrorBoundary>
-      <div className="flex min-h-screen flex-col bg-gray-50">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50">
         {/* Header */}
-        <header className="border-b border-gray-200 bg-white shadow-sm">
-          <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Blockchain Investigator
-              </h1>
-              <p className="text-sm text-gray-600">
-                Visualize Bitcoin blockchain transactions
-              </p>
-            </div>
+        <header className="w-full border-b border-gray-200 bg-white shadow-sm">
+          <div className="w-full py-4 text-center">
+            <h1 className="text-2xl font-bold text-gray-900">
+              Blockchain Investigator
+            </h1>
+            <p className="text-sm text-gray-600">
+              Visualize Bitcoin blockchain transactions
+            </p>
           </div>
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <main className="flex-1 mx-auto max-w-[1340px] px-4 pt-8 pb-6 sm:px-6 lg:px-8">
           {/* Search Section */}
-          <div className="mb-6 rounded-lg border border-gray-300 bg-white p-4 shadow-sm">
+          <div className="rounded-lg border border-gray-300 bg-white p-4 shadow-sm" style={{ marginTop: '20px', marginBottom: '20px' }}>
             <div className="flex gap-4">
               <div className="flex-1">
                 <label
@@ -196,7 +194,7 @@ export default function Home() {
         <ApiLogWindow />
 
         {/* Footer */}
-        <footer className="border-t border-gray-200 bg-white flex items-center justify-center py-2" style={{ minHeight: '60px' }}>
+        <footer className="w-full border-t border-gray-200 bg-white flex items-center justify-center py-2" style={{ minHeight: '60px' }}>
           <div className="text-center text-sm text-gray-600">
             Blockchain Investigator - Built with Next.js & FastAPI
           </div>

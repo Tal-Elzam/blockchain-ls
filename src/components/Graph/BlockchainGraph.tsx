@@ -28,6 +28,7 @@ interface BlockchainGraphProps {
   graphData: GraphData;
   selectedNode: BlockchainGraphNode | null;
   onNodeClick?: (node: BlockchainGraphNode | null) => void;
+  onNodeExpand?: (nodeId: string, currentOffset: number) => Promise<void>;
   onNodeHover?: (node: BlockchainGraphNode | null) => void;
   loading?: boolean;
   height?: number;
@@ -53,6 +54,7 @@ function BlockchainGraphInner({
   graphData,
   selectedNode,
   onNodeClick,
+  onNodeExpand,
   onNodeHover,
   loading = false,
   height = 600,

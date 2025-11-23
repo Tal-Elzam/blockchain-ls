@@ -15,6 +15,9 @@
 
 # testing
 /coverage
+htmlcov/
+.vitest-cache
+.benchmarks/
 
 # next.js
 /.next/
@@ -42,3 +45,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+backend/venv/
+backend/.coverage
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Python Virtual Environments
+venv/
+ENV/
+env/

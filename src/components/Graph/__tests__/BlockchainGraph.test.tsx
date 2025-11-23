@@ -1,0 +1,246 @@
+/**
+ * Component tests for BlockchainGraph
+ */
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@/__tests__/utils/test-utils';
+import BlockchainGraph from '../BlockchainGraph';
+import type { GraphData, GraphNode } from '@/lib/types/blockchain';
+
+// Mock @xyflow/react
+vi.mock('@xyflow/react', () => ({
+  ReactFlow: ({ nodes, edges }: any) => (
+    <div data-testid="react-flow">
+      <div data-testid="nodes-count">{nodes?.length || 0}</div>
+      <div data-testid="edges-count">{edges?.length || 0}</div>
+    </div>
+  ),
+  useNodesState: (initialNodes: any) => [
+    initialNodes,
+    vi.fn(),
+    vi.fn(),
+  ],
+  useEdgesState: (initialEdges: any) => [
+    initialEdges,
+    vi.fn(),
+    vi.fn(),
+  ],
+  ReactFlowProvider: ({ children }: any) => <div>{children}</div>,
+  useReactFlow: () => ({
+    fitView: vi.fn(),
+    setCenter: vi.fn(),
+  }),
+  Background: () => <div data-testid="background" />,
+  MarkerType: {
+    ArrowClosed: 'arrowclosed',
+  },
+}));
+
+// Mock d3-force
+vi.mock('d3-force', () => ({
+  forceSimulation: vi.fn(() => ({
+    force: vi.fn().mockReturnThis(),
+    on: vi.fn().mockReturnThis(),
+    stop: vi.fn(),
+    alphaMin: vi.fn().mockReturnThis(),
+    alphaDecay: vi.fn().mockReturnThis(),
+  })),
+  forceManyBody: vi.fn(() => ({ strength: vi.fn().mockReturnThis() })),
+  forceLink: vi.fn(() => ({
+    id: vi.fn().mockReturnThis(),
+    distance: vi.fn().mockReturnThis(),
+  })),
+  forceCenter: vi.fn(),
+  forceCollide: vi.fn(() => ({ radius: vi.fn().mockReturnThis() })),
+}));
+
+describe('BlockchainGraph', () => {
+  const mockGraphData: GraphData = {
+    nodes: [
+      {
+        id: 'addr1',
+        label: 'Address 1',
+        balance: 100000000,
+        txCount: 5,
+      },
+      {
+        id: 'addr2',
+        label: 'Address 2',
+        balance: 50000000,
+        txCount: 3,
+      },
+    ],
+    links: [
+      {
+        source: 'addr1',
+        target: 'addr2',
+        value: 50000000,
+        txHash: 'tx123',
+        timestamp: 1609459200,
+      },
+    ],
+  };
+
+  it('should render loading state', () => {
+    const emptyGraph: GraphData = { nodes: [], links: [] };
+    render(
+      <BlockchainGraph
+        graphData={emptyGraph}
+        selectedNode={null}
+        loading={true}
+      />
+    );
+
+    expect(screen.getByText(/Loading graph/i)).toBeInTheDocument();
+  });
+
+  it('should render empty state when no data', () => {
+    const emptyGraph: GraphData = { nodes: [], links: [] };
+    render(
+      <BlockchainGraph
+        graphData={emptyGraph}
+        selectedNode={null}
+        loading={false}
+      />
+    );
+
+    expect(screen.getByText(/No graph data available/i)).toBeInTheDocument();
+  });
+
+  it('should render graph with nodes and links', () => {
+    render(
+      <BlockchainGraph
+        graphData={mockGraphData}
+        selectedNode={null}
+        loading={false}
+      />
+    );
+
+    expect(screen.getByTestId('react-flow')).toBeInTheDocument();
+  });
+
+  it('should display node and link count', () => {
+    render(
+      <BlockchainGraph
+        graphData={mockGraphData}
+        selectedNode={null}
+        loading={false}
+      />
+    );
+
+    expect(screen.getByText(/2 nodes • 1 links/i)).toBeInTheDocument();
+  });
+
+  it('should handle selectedNode prop', () => {
+    const selectedNode: GraphNode = mockGraphData.nodes[0]!;
+    render(
+      <BlockchainGraph
+        graphData={mockGraphData}
+        selectedNode={selectedNode}
+        loading={false}
+      />
+    );
+
+    expect(screen.getByTestId('react-flow')).toBeInTheDocument();
+  });
+
+  it('should call onNodeClick when provided', () => {
+    const onNodeClick = vi.fn();
+    render(
+      <BlockchainGraph
+        graphData={mockGraphData}
+        selectedNode={null}
+        onNodeClick={onNodeClick}
+        loading={false}
+      />
+    );
+
+    // Note: Actual click event testing would require more complex setup with ReactFlow
+    expect(screen.getByTestId('react-flow')).toBeInTheDocument();
+  });
+
+  it('should accept custom height prop', () => {
+    render(
+      <BlockchainGraph
+        graphData={mockGraphData}
+        selectedNode={null}
+        loading={false}
+        height={800}
+      />
+    );
+
+    // Just verify component renders with custom height prop
+    expect(screen.getByTestId('react-flow')).toBeInTheDocument();
+  });
+
+  it('should handle large graph data', () => {
+    const largeGraph: GraphData = {
+      nodes: Array.from({ length: 50 }, (_, i) => ({
+        id: `addr${i}`,
+        label: `Address ${i}`,
+        balance: 100000000,
+        txCount: i,
+      })),
+      links: Array.from({ length: 100 }, (_, i) => ({
+        source: `addr${i % 50}`,
+        target: `addr${(i + 1) % 50}`,
+        value: 1000000,
+        txHash: `tx${i}`,
+      })),
+    };
+
+    render(
+      <BlockchainGraph
+        graphData={largeGraph}
+        selectedNode={null}
+        loading={false}
+      />
+    );
+
+    expect(screen.getByText(/50 nodes • 100 links/i)).toBeInTheDocument();
+  });
+
+  it('should handle graph with single node', () => {
+    const singleNodeGraph: GraphData = {
+      nodes: [{ id: 'addr1', label: 'Address 1' }],
+      links: [],
+    };
+
+    render(
+      <BlockchainGraph
+        graphData={singleNodeGraph}
+        selectedNode={null}
+        loading={false}
+      />
+    );
+
+    expect(screen.getByText(/1 nodes • 0 links/i)).toBeInTheDocument();
+  });
+
+  it('should update when graphData changes', () => {
+    const { rerender } = render(
+      <BlockchainGraph
+        graphData={mockGraphData}
+        selectedNode={null}
+        loading={false}
+      />
+    );
+
+    expect(screen.getByText(/2 nodes • 1 links/i)).toBeInTheDocument();
+
+    const newGraphData: GraphData = {
+      nodes: [...mockGraphData.nodes, { id: 'addr3', label: 'Address 3' }],
+      links: mockGraphData.links,
+    };
+
+    rerender(
+      <BlockchainGraph
+        graphData={newGraphData}
+        selectedNode={null}
+        loading={false}
+      />
+    );
+
+    expect(screen.getByText(/3 nodes • 1 links/i)).toBeInTheDocument();
+  });
+});
+

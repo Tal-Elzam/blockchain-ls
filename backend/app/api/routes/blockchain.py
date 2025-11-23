@@ -14,7 +14,6 @@ from app.models.schemas import AddressResponse, GraphData
 
 router = APIRouter(prefix="/api", tags=["blockchain"])
 
-
 @router.get("/address/{address}", response_model=AddressResponse)
 async def get_address_details(
     address: str,
@@ -41,7 +40,6 @@ async def get_address_details(
         )
         return address_data
     except httpx.HTTPStatusError as e:
-        # Handle rate limiting specifically
         if e.response.status_code == 429:
             raise HTTPException(
                 status_code=503,
@@ -102,7 +100,6 @@ async def get_address_graph(
         return graph_data
         
     except httpx.HTTPStatusError as e:
-        # Handle rate limiting specifically
         if e.response.status_code == 429:
             raise HTTPException(
                 status_code=503,

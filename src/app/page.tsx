@@ -67,25 +67,6 @@ export default function Home() {
     setSelectedNode(node);
   }, []);
 
-  const handleNodeExpand = useCallback(async (nodeId: string, currentOffset: number) => {
-    setLoading(true);
-    try {
-      const newData = await BlockchainService.getAddressGraph(nodeId, 50, currentOffset + 50);
-      setGraphData((prev) => mergeGraphData(prev, newData));
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to expand node';
-      
-      // Check if it's a rate limiting error
-      if (errorMessage.includes('429') || errorMessage.includes('Too many requests')) {
-        setError('Too many requests. Please wait a moment before expanding more nodes.');
-      } else {
-        setError(errorMessage);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSearch();
@@ -128,7 +109,7 @@ export default function Home() {
                     setError(null);
                   }}
                   onKeyPress={handleKeyPress}
-                  placeholder="Enter Bitcoin address (e.g., 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa)"
+                  placeholder="Enter Bitcoin address (e.g., bc1ql3smp4dphdfxldzecjkj3h4vt8lw8payekxf7h)"
                   className="w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {error && (
@@ -182,7 +163,7 @@ export default function Home() {
                 <div className="text-sm text-gray-500">
                   <p>Example address:</p>
                   <p className="font-mono">
-                    1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa
+                    bc1ql3smp4dphdfxldzecjkj3h4vt8lw8payekxf7h
                   </p>
                 </div>
               </div>

@@ -47,7 +47,6 @@ export default function ApiLogWindow() {
 
   return (
     <>
-      {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-4 right-4 z-50 rounded-full bg-blue-600 px-4 py-2 text-white shadow-lg hover:bg-blue-700"
@@ -55,7 +54,6 @@ export default function ApiLogWindow() {
         API Log ({logEntries.length})
       </button>
 
-      {/* Log Window */}
       {isOpen && (
         <div className="fixed bottom-4 right-4 z-40 w-96 rounded-lg border border-gray-300 bg-white shadow-xl">
           <div className="flex items-center justify-between border-b border-gray-200 p-3">

@@ -9,7 +9,6 @@ import {
   useEdgesState,
   Background,
   ReactFlowProvider,
-  useReactFlow,
   MarkerType,
 } from '@xyflow/react';
 import {
@@ -28,8 +27,6 @@ interface BlockchainGraphProps {
   graphData: GraphData;
   selectedNode: BlockchainGraphNode | null;
   onNodeClick?: (node: BlockchainGraphNode | null) => void;
-  onNodeExpand?: (nodeId: string, currentOffset: number) => Promise<void>;
-  onNodeHover?: (node: BlockchainGraphNode | null) => void;
   loading?: boolean;
   height?: number;
 }
@@ -54,8 +51,6 @@ function BlockchainGraphInner({
   graphData,
   selectedNode,
   onNodeClick,
-  onNodeExpand,
-  onNodeHover,
   loading = false,
   height = 600,
 }: BlockchainGraphProps) {
@@ -67,16 +62,15 @@ function BlockchainGraphInner({
 
   // Convert blockchain graph data to React Flow format
   const convertToReactFlowFormat = (data: GraphData, selectedId?: string, highlightedId?: string) => {
-    // Create nodes in React Flow format
     const rfNodes: Node[] = data.nodes.map((node) => {
-      const size = node.txCount ? Math.min(30 + node.txCount / 2, 80) : 30;
+      const size = node.txCount ? Math.min(40 + node.txCount / 2, 100) : 40;
       
       return {
         id: node.id,
         type: 'default',
-        position: { x: node.x || Math.random() * 800, y: node.y || Math.random() * 600 },
+        position: { x: node.x || Math.random() * 1000, y: node.y || Math.random() * 700 },
         data: {
-          label: node.label || node.id.substring(0, 8) + '...',
+          label: node.id.substring(0, 2) + '...' + node.id.slice(-2),
           balance: node.balance,
           txCount: node.txCount,
           fullId: node.id,
@@ -165,7 +159,7 @@ function BlockchainGraphInner({
     const simulation = forceSimulation(simNodes)
       .force('charge', forceManyBody().strength(-300))
       .force('link', forceLink(simLinks).id((d: any) => d.id).distance(100))
-      .force('center', forceCenter(400, 300))
+      .force('center', forceCenter(350, 350))
       .force('collide', forceCollide().radius(40))
       .alphaMin(0.001)
       .alphaDecay(0.02);
@@ -193,11 +187,9 @@ function BlockchainGraphInner({
       );
     });
 
-    // Set initial nodes and edges
     setNodes(rfNodes);
     setEdges(rfEdges);
 
-    // Store simulation reference
     simulationRef.current = simulation;
 
     // Cleanup
@@ -206,14 +198,13 @@ function BlockchainGraphInner({
         simulationRef.current.stop();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graphData]);
 
   // Update node styles when selection or highlight changes
   useEffect(() => {
     setNodes((nds) =>
       nds.map((node) => {
-        const size = node.data.txCount ? Math.min(30 + (node.data.txCount as number) / 2, 80) : 30;
+        const size = node.data.txCount ? Math.min(40 + (node.data.txCount as number) / 2, 100) : 40;
         return {
           ...node,
           style: {
@@ -228,14 +219,6 @@ function BlockchainGraphInner({
     );
   }, [selectedNode, highlightedNode, setNodes]);
 
-  // Center on selected node
-  useEffect(() => {
-    if (selectedNode) {
-      const node = nodes.find((n) => n.id === selectedNode.id);
-      // Node centering removed
-    }
-  }, [selectedNode, nodes]);
-
   // Handle node click
   const handleNodeClick = useCallback(
     (_event: React.MouseEvent, node: Node) => {
@@ -249,17 +232,14 @@ function BlockchainGraphInner({
   const handleNodeMouseEnter = useCallback(
     (_event: React.MouseEvent, node: Node) => {
       setHighlightedNode(node.id);
-      const hoveredNode = graphData.nodes.find((n) => n.id === node.id);
-      onNodeHover?.(hoveredNode || null);
     },
-    [graphData.nodes, onNodeHover]
+    [graphData.nodes]
   );
 
   // Handle node mouse leave
   const handleNodeMouseLeave = useCallback(() => {
     setHighlightedNode(null);
-    onNodeHover?.(null);
-  }, [onNodeHover]);
+  }, []);
 
   if (loading) {
     return (

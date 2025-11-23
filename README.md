@@ -1,176 +1,478 @@
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/26466516/141659551-d7ba5630-7200-46fe-863b-87818dae970a.png" alt="Next.js TypeScript Starter">
-</p>
+# 🔗 Blockchain Investigator
 
-<br />
+A powerful full-stack application for investigating Bitcoin blockchain transactions with interactive graph visualization.
 
-<div align="center"><strong>Non-opinionated TypeScript starter for Next.js</strong></div>
-<div align="center">Highly scalable foundation with the best DX. All the tools you need to build your Next project.</div>
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.0-black.svg)](https://nextjs.org/)
+[![Python](https://img.shields.io/badge/Python-3.11+-green.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-teal.svg)](https://fastapi.tiangolo.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 
-<br />
-
-<div align="center">
-  <img src="https://img.shields.io/static/v1?label=PRs&message=welcome&style=flat-square&color=5e17eb&labelColor=000000" alt="PRs welcome!" />
-
-  <img alt="License" src="https://img.shields.io/github/license/jpedroschmitz/typescript-nextjs-starter?style=flat-square&color=5e17eb&labelColor=000000">
-
-  <a href="https://x.com/intent/follow?screen_name=jpedroschmitz">
-    <img src="https://img.shields.io/twitter/follow/jpedroschmitz?style=flat-square&color=5e17eb&labelColor=000000" alt="Follow @jpedroschmitz" />
-  </a>
-</div>
-
-<div align="center">
-  <sub>Created by <a href="https://x.com/jpedroschmitz">João Pedro</a> with the help of many <a href="https://github.com/jpedroschmitz/typescript-nextjs-starter/graphs/contributors">wonderful contributors</a>.</sub>
-</div>
-
-<br />
-
-## Features
-
-- ⚡️ Next.js 16 (App Router)
-- ⚛️ React 19
-- ⛑ TypeScript
-- 📏 ESLint 9 — To find and fix problems in your code
-- 💖 Prettier — Code Formatter for consistent style
-- 🐶 Husky — For running scripts before committing
-- 🚓 Commitlint — To make sure your commit messages follow the convention
-- 🖌 Renovate — To keep your dependencies up to date
-- 🚫 lint-staged — Run ESLint and Prettier against staged Git files
-- 👷 PR Workflow — Run Type Check & Linters on Pull Requests
-- ⚙️ EditorConfig - Consistent coding styles across editors and IDEs
-- 🗂 Path Mapping — Import components or images using the `@` prefix
-- 🔐 CSP — Content Security Policy for enhanced security (default minimal policy)
-- 🧳 T3 Env — Type-safe environment variables
-- 🪧 Redirects — Easily add redirects to your application
-
-## Quick Start
-
-The best way to start with this template is using [Create Next App](https://nextjs.org/docs/api-reference/create-next-app).
+##  Architecture Overview
 
 ```
-# pnpm
-pnpm create next-app -e https://github.com/jpedroschmitz/typescript-nextjs-starter
-# yarn
-yarn create next-app -e https://github.com/jpedroschmitz/typescript-nextjs-starter
-# npm
-npx create-next-app -e https://github.com/jpedroschmitz/typescript-nextjs-starter
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           Client Browser                                 │
+│                                                                          │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                     Next.js Frontend (Port 3000)                  │  │
+│  │                                                                    │  │
+│  │  ┌────────────────┐  ┌──────────────────┐  ┌─────────────────┐  │  │
+│  │  │  React         │  │  Graph           │  │  Address        │  │  │
+│  │  │  Components    │  │  Visualization   │  │  Details Panel  │  │  │
+│  │  │  (TypeScript)  │  │  (D3-Force +     │  │                 │  │  │
+│  │  │                │  │   ReactFlow)     │  │                 │  │  │
+│  │  └────────┬───────┘  └────────┬─────────┘  └────────┬────────┘  │  │
+│  │           │                   │                      │           │  │
+│  │           └───────────────────┴──────────────────────┘           │  │
+│  │                              │                                    │  │
+│  │                    ┌─────────▼──────────┐                        │  │
+│  │                    │  Backend Client    │                        │  │
+│  │                    │  (API Service)     │                        │  │
+│  │                    └─────────┬──────────┘                        │  │
+│  └──────────────────────────────┼─────────────────────────────────┘  │
+└─────────────────────────────────┼────────────────────────────────────┘
+                                  │
+                        HTTP/JSON │ (REST API)
+                                  │
+┌─────────────────────────────────▼────────────────────────────────────┐
+│                   FastAPI Backend (Port 8000)                         │
+│                                                                        │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │                      API Routes                               │   │
+│  │  /api/address/{address}        - Get address details         │   │
+│  │  /api/address/{address}/graph  - Get transaction graph       │   │
+│  └──────────────────┬───────────────────────────────────────────┘   │
+│                     │                                                 │
+│  ┌──────────────────▼───────────────────────────────────────────┐   │
+│  │              Blockchain Service                               │   │
+│  │  • fetch_address_details()  - Fetch from blockchain.info     │   │
+│  │  • convert_transactions_to_graph()  - Transform data         │   │
+│  │  • merge_graph_data()  - Merge multiple graph structures     │   │
+│  └──────────────────┬───────────────────────────────────────────┘   │
+│                     │                                                 │
+│  ┌──────────────────▼───────────────────────────────────────────┐   │
+│  │              Rate Limiter                                     │   │
+│  │  • wait_for_rate_limit()  - Enforce 10s delay               │   │
+│  │  • Max 6 requests/minute  - Respect API limits              │   │
+│  └──────────────────┬───────────────────────────────────────────┘   │
+└────────────────────┼──────────────────────────────────────────────┘
+                     │
+           HTTP/JSON │ (External API)
+                     │
+┌────────────────────▼────────────────────────────────────────────────┐
+│               Blockchain.info Public API                             │
+│                                                                       │
+│  • GET /rawaddr/{address}  - Address transaction data               │
+│  • Rate Limit: 1 request per 10 seconds                             │
+│  • Returns: Address balance, transactions, inputs/outputs           │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
-### Development
+##  Features
 
-To start the project locally, run:
+###  Frontend (Next.js + React)
+- **Interactive Graph Visualization** - D3-Force physics simulation with ReactFlow
+- **Real-time Transaction Tracking** - Live updates of blockchain transactions
+- **Address Details Panel** - Comprehensive view of wallet information
+- **API Call Logging** - Monitor all backend requests in real-time
+- **Responsive Design** - Modern UI with Tailwind CSS
+- **Error Boundaries** - Graceful error handling and recovery
+- **Type Safety** - Full TypeScript coverage
+
+###  Backend (Python + FastAPI)
+- **RESTful API** - Clean, documented endpoints
+- **Rate Limiting** - Intelligent request throttling (10s between requests)
+- **Data Transformation** - Convert blockchain data to graph format
+- **Error Handling** - Comprehensive error catching and reporting
+- **CORS Support** - Secure cross-origin requests
+- **Async Operations** - Non-blocking I/O for better performance
+
+###  Testing
+- **Frontend**: Vitest + Testing Library (78+ tests, 60%+ coverage)
+- **Backend**: Pytest + Pytest-asyncio (99+ tests, 60%+ coverage)
+- **Unit Tests**: Services, utilities, and helpers
+- **Integration Tests**: API endpoints and components
+- **Component Tests**: React components with mocking
+
+##  Quick Start
+
+### Prerequisites
+
+- **Node.js** >= 24.x
+- **Python** >= 3.11
+- **pnpm** 10.x (or npm/yarn)
+- **pip** (Python package manager)
+
+### Installation
+
+#### 1. Clone the Repository
 
 ```bash
-pnpm dev
+git clone <repository-url>
+cd blockchain-ls
 ```
 
-Open `http://localhost:3000` with your browser to see the result.
+#### 2. Setup Backend
 
-## Testimonials
+```bash
+cd backend
+python -m venv venv
 
-> [**“This starter is by far the best TypeScript starter for Next.js. Feature packed but un-opinionated at the same time!”**](https://github.com/jpedroschmitz/typescript-nextjs-starter/issues/87#issue-789642190)<br>
-> — Arafat Zahan
+# Windows
+venv\Scripts\activate
 
-> [**“I can really recommend the Next.js Typescript Starter repo as a solid foundation for your future Next.js projects.”**](https://corfitz.medium.com/create-a-custom-create-next-project-command-2a6b35a1c8e6)<br>
-> — Corfitz
+# macOS/Linux
+source venv/bin/activate
 
-> [**“Brilliant work!”**](https://github.com/jpedroschmitz/typescript-nextjs-starter/issues/87#issuecomment-769314539)<br>
-> — Soham Dasgupta
-
-## Showcase
-
-List of websites that started off with Next.js TypeScript Starter:
-
-- [FreeInvoice.dev](https://freeinvoice.dev)
-- [Notion Avatar Maker](https://github.com/Mayandev/notion-avatar)
-- [IKEA Low Price](https://github.com/Mayandev/ikea-low-price)
-- [hygraph.com](https://hygraph.com)
-- [rocketseat.com.br](https://www.rocketseat.com.br)
-- [vagaschapeco.com](https://vagaschapeco.com)
-- [unfork.vercel.app](https://unfork.vercel.app)
-- [Add yours](https://github.com/jpedroschmitz/typescript-nextjs-starter/edit/main/README.md)
-
-## Documentation
-
-### Requirements
-
-- Node.js >= 24
-- pnpm 10
-
-### Directory Structure
-
-- [`.github`](.github) — GitHub configuration including the CI workflow.<br>
-- [`.husky`](.husky) — Husky configuration and hooks.<br>
-- [`public`](./public) — Static assets such as robots.txt, images, and favicon.<br>
-- [`src`](./src) — Application source code, including pages, components, styles.
-
-### Scripts
-
-- `pnpm dev` — Starts the application in development mode at `http://localhost:3000`.
-- `pnpm build` — Creates an optimized production build of your application.
-- `pnpm start` — Starts the application in production mode.
-- `pnpm type-check` — Validate code using TypeScript compiler.
-- `pnpm lint` — Runs ESLint for all files in the `src` directory.
-- `pnpm lint:fix` — Runs ESLint fix for all files in the `src` directory.
-- `pnpm format` — Runs Prettier for all files in the `src` directory.
-- `pnpm format:check` — Check Prettier list of files that need to be formatted.
-- `pnpm format:ci` — Prettier check for CI.
-
-### Path Mapping
-
-TypeScript are pre-configured with custom path mappings. To import components or files, use the `@` prefix.
-
-```tsx
-import { Button } from '@/components/Button';
-// To import images or other files from the public folder
-import avatar from '@/public/avatar.png';
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-### Switch to Yarn/npm
+#### 3. Setup Frontend
 
-This starter uses pnpm by default, but this choice is yours. If you'd like to switch to Yarn/npm, delete the `pnpm-lock.yaml` file, install the dependencies with Yarn/npm, change the CI workflow, and Husky Git hooks to use Yarn/npm commands.
+```bash
+# From project root
+pnpm install
+```
 
-> **Note:** If you use Yarn, make sure to follow these steps from the [Husky documentation](https://typicode.github.io/husky/troubleshoot.html#yarn-on-windows) so that Git hooks do not fail with Yarn on Windows.
+#### 4. Configure Environment Variables
 
-### Environment Variables
-
-We use [T3 Env](https://env.t3.gg/) to manage environment variables. Create a `.env.local` file in the root of the project and add your environment variables there.
-
-When adding additional environment variables, the schema in `./src/lib/env/client.ts` or `./src/lib/env/server.ts` should be updated accordingly.
-
-#### Frontend Environment Variables
-
-Create a `.env.local` file in the root directory:
-
+**Frontend** (`.env.local` in root):
 ```env
-# Backend API URL (default: http://localhost:8000)
 NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
 ```
 
-#### Backend Environment Variables
+**Backend** (`backend/.env`):
+```env
+PORT=8000
+HOST=0.0.0.0
+CORS_ORIGINS=http://localhost:3000
+```
 
-See `backend/.env.example` for backend environment variables configuration.
+### Running the Application
 
-### Redirects
+#### Start Backend Server
 
-To add redirects, update the `redirects` array in `./redirects.ts`. It's typed, so you'll get autocompletion for the properties.
+```bash
+cd backend
+python run.py
+# Server running at http://localhost:8000
+# API docs at http://localhost:8000/docs
+```
 
-### CSP (Content Security Policy)
+#### Start Frontend Server
 
-The Content Security Policy (CSP) is a security layer that helps to detect and mitigate certain types of attacks, including Cross-Site Scripting (XSS) and data injection attacks. The CSP is implemented in the `next.config.ts` file.
+```bash
+# From project root
+pnpm dev
+# App running at http://localhost:3000
+```
 
-It contains a default and minimal policy that you can customize to fit your application needs. It's a foundation to build upon.
+## 🧪 Testing
 
-### Husky
+### Frontend Tests
 
-Husky is a tool that helps us run scrips before Git events. We have 3 hooks:
+```bash
+# Run all tests
+pnpm test
 
-- `pre-commit` — (Disabled by default) Runs lint-staged to lint and format the files.
-- `commit-msg` — Runs commitlint to check if the commit message follows the conventional commit message format.
-- `post-merge` — Runs pnpm install to update the dependencies if there was a change in the `pnpm-lock.yaml` file.
+# Run with UI (recommended)
+pnpm test:ui
 
-> Important note: Husky is disabled by default in the pre-commit hook. This is intention because most developers don't want to run lint-staged on every commit. If you want to enable it, run `echo 'HUSKY_ENABLED=true' > .husky/_/pre-commit.options`.
+# Run with coverage
+pnpm test:coverage
 
-## License
+# View coverage report
+open coverage/index.html
+```
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for more information.
+**Test Coverage:**
+- Unit tests for utility functions
+- Service layer tests with mocking
+- Component tests with React Testing Library
+- 78+ tests across 10 test suites
+
+### Backend Tests
+
+```bash
+cd backend
+
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=app --cov-report=html
+
+# Run specific test file
+pytest tests/unit/test_blockchain_service.py
+
+# View coverage report
+open htmlcov/index.html
+```
+
+**Test Coverage:**
+- Unit tests for services and utilities
+- Integration tests for API endpoints
+- Mock external API calls with respx
+- 99+ tests across 6 test suites
+
+##  API Documentation
+
+### Endpoints
+
+#### GET `/`
+Health check endpoint.
+
+**Response:**
+```json
+{
+  "message": "Blockchain Investigator API is running",
+  "version": "1.0.0",
+  "docs": "/docs"
+}
+```
+
+#### GET `/health`
+Health status endpoint.
+
+**Response:**
+```json
+{
+  "status": "healthy"
+}
+```
+
+#### GET `/api/address/{address}`
+Fetch detailed information about a Bitcoin address.
+
+**Parameters:**
+- `address` (path) - Bitcoin address
+- `limit` (query, optional) - Number of transactions (1-100, default: 50)
+- `offset` (query, optional) - Number of transactions to skip (default: 0)
+
+**Response:**
+```json
+{
+  "address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+  "n_tx": 5,
+  "total_received": 500000000,
+  "total_sent": 300000000,
+  "final_balance": 200000000,
+  "txs": [...]
+}
+```
+
+#### GET `/api/address/{address}/graph`
+Get transaction graph data for visualization.
+
+**Parameters:**
+- `address` (path) - Bitcoin address
+- `limit` (query, optional) - Number of transactions (1-100, default: 50)
+- `offset` (query, optional) - Number of transactions to skip (default: 0)
+
+**Response:**
+```json
+{
+  "nodes": [
+    {
+      "id": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "label": "1A1zP1eP...DivfNa",
+      "balance": 200000000,
+      "txCount": 5
+    }
+  ],
+  "links": [
+    {
+      "source": "addr1",
+      "target": "addr2",
+      "value": 100000000,
+      "txHash": "abc123...",
+      "timestamp": 1609459200
+    }
+  ]
+}
+```
+
+### Interactive API Documentation
+
+Visit `http://localhost:8000/docs` for interactive Swagger UI documentation.
+
+##  Project Structure
+
+```
+blockchain-ls/
+├── src/                          # Frontend source code
+│   ├── __tests__/               # Test setup and utilities
+│   │   ├── setup.ts            # Global test configuration
+│   │   ├── __mocks__/          # Mock data
+│   │   └── utils/              # Test utilities
+│   ├── app/                     # Next.js App Router
+│   │   ├── api/                # API route handlers
+│   │   ├── layout.tsx          # Root layout
+│   │   └── page.tsx            # Home page
+│   ├── components/              # React components
+│   │   ├── Graph/              # Graph visualization
+│   │   ├── AddressDetails/     # Address info panel
+│   │   ├── ApiLog/             # API logging window
+│   │   └── ErrorBoundary/      # Error handling
+│   └── lib/                     # Utilities and services
+│       ├── api/                # Backend client
+│       ├── services/           # Business logic
+│       └── types/              # TypeScript types
+├── backend/                     # Backend source code
+│   ├── app/                    # FastAPI application
+│   │   ├── api/               # API routes
+│   │   │   └── routes/        # Route handlers
+│   │   ├── models/            # Pydantic schemas
+│   │   ├── services/          # Business logic
+│   │   └── main.py            # FastAPI app
+│   ├── tests/                  # Backend tests
+│   │   ├── unit/              # Unit tests
+│   │   ├── integration/       # Integration tests
+│   │   └── conftest.py        # Pytest fixtures
+│   ├── requirements.txt        # Python dependencies
+│   └── pytest.ini             # Pytest configuration
+├── public/                      # Static assets
+├── vitest.config.ts            # Vitest configuration
+├── next.config.ts              # Next.js configuration
+├── tsconfig.json               # TypeScript configuration
+├── package.json                # Node.js dependencies
+└── README.md                   # This file
+```
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **Framework**: Next.js 16 (App Router)
+- **UI Library**: React 19
+- **Language**: TypeScript 5.9
+- **Styling**: Tailwind CSS 4
+- **Graph Visualization**: ReactFlow 12 + D3-Force 3
+- **HTTP Client**: Fetch API
+- **Testing**: Vitest 3 + Testing Library
+- **Linting**: ESLint 9 + Prettier 3
+- **Environment**: T3 Env (type-safe env vars)
+
+### Backend
+- **Framework**: FastAPI 0.115
+- **Language**: Python 3.11+
+- **Server**: Uvicorn (ASGI)
+- **HTTP Client**: httpx (async)
+- **Validation**: Pydantic 2.9
+- **Testing**: Pytest 8 + Pytest-asyncio
+- **Mocking**: respx 0.21
+
+##  Scripts
+
+### Frontend Scripts
+
+```bash
+pnpm dev          # Start development server
+pnpm build        # Build for production
+pnpm start        # Start production server
+pnpm lint         # Run ESLint
+pnpm lint:fix     # Fix ESLint issues
+pnpm format       # Format with Prettier
+pnpm type-check   # TypeScript type checking
+pnpm test         # Run tests
+pnpm test:ui      # Run tests with UI
+pnpm test:coverage # Run tests with coverage
+```
+
+### Backend Scripts
+
+```bash
+python run.py                    # Start server
+pytest                          # Run tests
+pytest --cov=app               # Run tests with coverage
+pytest tests/unit              # Run unit tests only
+pytest tests/integration       # Run integration tests only
+```
+
+##  Security Features
+
+- **Content Security Policy (CSP)** - Configured in `next.config.ts`
+- **CORS Protection** - Whitelisted origins only
+- **Rate Limiting** - Backend enforces 10s delay between requests
+- **Input Validation** - Pydantic models validate all inputs
+- **Error Boundaries** - Frontend catches and handles errors gracefully
+- **Type Safety** - Full TypeScript and Pydantic coverage
+
+##  Rate Limiting
+
+The application respects blockchain.info API rate limits:
+
+- **Minimum delay**: 10 seconds between requests
+- **Maximum requests**: 6 per minute
+- **Automatic retry**: On 429 (rate limit) errors
+- **Smart queuing**: Requests are queued and processed sequentially
+
+##  Troubleshooting
+
+### Common Issues
+
+**Backend won't start:**
+```bash
+# Make sure virtual environment is activated
+cd backend
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+```
+
+**Frontend can't connect to backend:**
+- Check that backend is running on port 8000
+- Verify `NEXT_PUBLIC_BACKEND_URL` in `.env.local`
+- Check CORS settings in `backend/app/main.py`
+
+**Tests failing:**
+```bash
+# Frontend
+pnpm install
+pnpm test
+
+# Backend
+cd backend
+pip install -r requirements.txt
+pytest
+```
+
+**Rate limiting errors:**
+- The blockchain.info API has strict rate limits
+- Wait at least 10 seconds between requests
+- Consider implementing a caching layer for frequently accessed addresses
+
+##  Additional Documentation
+
+- **Frontend Tests**: See `__tests__/README.md`
+- **Backend Tests**: See `backend/tests/README.md`
+- **API Documentation**: Visit `http://localhost:8000/docs` when running
+
+##  Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Code Style
+
+- Follow existing code style
+- Run linters before committing: `pnpm lint:fix` and `pnpm format`
+- Write tests for new features
+- Update documentation as needed
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## 🙏 Acknowledgments
+
+- [blockchain.info](https://blockchain.info) for their public API
+- [ReactFlow](https://reactflow.dev/) for graph visualization
+- [FastAPI](https://fastapi.tiangolo.com/) for the amazing Python framework
+- [Next.js](https://nextjs.org/) for the powerful React framework
+
+---
+

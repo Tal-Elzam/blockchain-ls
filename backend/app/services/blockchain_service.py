@@ -92,7 +92,6 @@ def convert_transactions_to_graph(
     nodes: Dict[str, GraphNode] = {}
     links: List[GraphLink] = []
     
-    # Add the central address as a node
     nodes[address] = GraphNode(
         id=address,
         label=f"{address[:8]}...{address[-8:]}",
@@ -102,7 +101,6 @@ def convert_transactions_to_graph(
         tx_hash = tx.hash
         tx_time = tx.time
         
-        # INBOUND: Process inputs (money coming FROM other addresses TO our target address)
         for input_item in tx.inputs:
             prev_out = input_item.prev_out
             if not prev_out:
@@ -114,21 +112,17 @@ def convert_transactions_to_graph(
             if not source_addr:
                 continue
             
-            # Check if this transaction sends money TO our target address
             target_address_in_outputs = any(
                 output.addr == address for output in tx.out
             )
             
-            # Only create link if money goes TO target address
             if target_address_in_outputs:
-                # Add source node if it doesn't exist
                 if source_addr not in nodes:
                     nodes[source_addr] = GraphNode(
                         id=source_addr,
                         label=f"{source_addr[:8]}...{source_addr[-8:]}",
                     )
                 
-                # Create INBOUND link: source_addr -> address (target)
                 links.append(GraphLink(
                     source=source_addr,
                     target=address,
@@ -137,7 +131,6 @@ def convert_transactions_to_graph(
                     timestamp=tx_time,
                 ))
         
-        # OUTBOUND: Process outputs (money going FROM our target address TO other addresses)
         for output in tx.out:
             dest_addr = output.addr
             value = output.value
@@ -145,22 +138,18 @@ def convert_transactions_to_graph(
             if not dest_addr or dest_addr == address:
                 continue
             
-            # Check if this transaction sends money FROM our target address
             source_address_in_inputs = any(
                 inp.prev_out and inp.prev_out.get("addr") == address
                 for inp in tx.inputs
             )
             
-            # Only create link if money comes FROM target address
             if source_address_in_inputs:
-                # Add destination node if it doesn't exist
                 if dest_addr not in nodes:
                     nodes[dest_addr] = GraphNode(
                         id=dest_addr,
                         label=f"{dest_addr[:8]}...{dest_addr[-8:]}",
                     )
                 
-                # Create OUTBOUND link: address (source) -> dest_addr
                 links.append(GraphLink(
                     source=address,
                     target=dest_addr,
@@ -174,44 +163,3 @@ def convert_transactions_to_graph(
         links=links,
     )
 
-
-def merge_graph_data(
-    existing: GraphData,
-    new_data: GraphData,
-) -> GraphData:
-    """
-    Merge two graph data structures, avoiding duplicates
-    
-    Args:
-        existing: Existing graph data
-        new_data: New graph data to merge
-    
-    Returns:
-        Merged graph data
-    """
-    node_map: Dict[str, GraphNode] = {}
-    link_map: Dict[str, GraphLink] = {}
-    
-    # Process existing nodes and links
-    for node in existing.nodes:
-        node_map[node.id] = node
-    
-    for link in existing.links:
-        key = f"{link.source}-{link.target}-{link.txHash}"
-        link_map[key] = link
-    
-    # Add new nodes (if they don't exist)
-    for node in new_data.nodes:
-        if node.id not in node_map:
-            node_map[node.id] = node
-    
-    # Add new links (if they don't exist)
-    for link in new_data.links:
-        key = f"{link.source}-{link.target}-{link.txHash}"
-        if key not in link_map:
-            link_map[key] = link
-    
-    return GraphData(
-        nodes=list(node_map.values()),
-        links=list(link_map.values()),
-    )

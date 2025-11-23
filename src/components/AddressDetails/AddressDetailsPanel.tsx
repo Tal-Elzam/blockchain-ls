@@ -7,12 +7,10 @@ import { BlockchainService } from '@/lib/services/blockchain-service';
 
 interface AddressDetailsPanelProps {
   selectedNode: GraphNode | null;
-  onLoadMore?: (address: string, offset: number) => void;
 }
 
 export default function AddressDetailsPanel({
   selectedNode,
-  onLoadMore,
 }: AddressDetailsPanelProps) {
   const [addressData, setAddressData] = useState<AddressResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -21,6 +19,21 @@ export default function AddressDetailsPanel({
 
   useEffect(() => {
     if (selectedNode) {
+      if (selectedNode.id.startsWith('bc1p')) {
+        setError(' Taproot addresses (bc1p...) are not supported by the blockchain API. Please select a different node.');
+        setAddressData(null);
+        setLoading(false);
+        return;
+      }
+  
+      // Additional check for very long addresses
+      if (selectedNode.id.length > 72) {
+        setError(' This address format is not supported by the blockchain API. Please select a different node.');
+        setAddressData(null);
+        setLoading(false);
+        return;
+      }
+      setAddressData(null);
       setLoading(true);
       setError(null);
       setOffset(0);
@@ -83,7 +96,7 @@ export default function AddressDetailsPanel({
   }
 
   return (
-    <div className="rounded-lg border border-gray-300 bg-white p-4 h-[700px] w-full flex flex-col">
+    <div className="rounded-lg border border-gray-300 bg-white p-4 h-[700px] w-full flex flex-col" style={{ minWidth: '300px' }}>
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold" style={{ color: '#1c272f' }}>Address Details</h3>
         <button
@@ -98,7 +111,7 @@ export default function AddressDetailsPanel({
       </div>
 
       {loading && !addressData && (
-        <div className="flex-1 flex items-center justify-center py-8">
+        <div className="flex flex-col flex-1 items-center justify-center min-h-0">
           <div className="text-center">
             <div className="mb-2 inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-blue-600 border-r-transparent"></div>
             <p className="text-sm text-gray-600">Loading...</p>
@@ -114,13 +127,11 @@ export default function AddressDetailsPanel({
 
       {addressData && (
         <div className="flex flex-col flex-1 space-y-4 min-h-0">
-          {/* Address */}
           <div>
             <label className="text-xs font-medium text-gray-500">Address</label>
             <p className="break-all font-mono text-sm" style={{ color: '#1c272f' }}>{addressData.address}</p>
           </div>
 
-          {/* Balance */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-medium text-gray-500">
@@ -140,7 +151,6 @@ export default function AddressDetailsPanel({
             </div>
           </div>
 
-          {/* Transaction Stats */}
           <div className="grid grid-cols-3 gap-4 rounded bg-gray-50 p-3">
             <div>
               <label className="text-xs font-medium text-gray-500">
@@ -164,7 +174,6 @@ export default function AddressDetailsPanel({
             </div>
           </div>
 
-          {/* Transactions List */}
           {addressData.txs.length > 0 && (
             <div className="flex flex-col flex-1 min-h-0">
               <label className="mb-2 block text-xs font-medium text-gray-500">
@@ -192,7 +201,6 @@ export default function AddressDetailsPanel({
                 ))}
               </div>
 
-              {/* Load More Button */}
               {addressData.txs.length < addressData.n_tx && (
                 <button
                   onClick={handleLoadMore}

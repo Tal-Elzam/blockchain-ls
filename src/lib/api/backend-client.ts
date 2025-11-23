@@ -19,34 +19,22 @@ const DEFAULT_TIMEOUT = 30000; // 30 seconds
 const apiLog: ApiLogEntry[] = [];
 const MAX_LOG_ENTRIES = 100;
 
-/**
- * Add entry to API log
- */
 function addApiLogEntry(entry: ApiLogEntry): void {
   apiLog.unshift(entry);
-  // Keep only the last MAX_LOG_ENTRIES entries
   if (apiLog.length > MAX_LOG_ENTRIES) {
     apiLog.pop();
   }
 }
 
-/**
- * Get API log entries
- */
 export function getApiLog(): ApiLogEntry[] {
-  return [...apiLog]; // Return a copy
+  return [...apiLog]; 
 }
 
-/**
- * Clear API log
- */
 export function clearApiLog(): void {
   apiLog.length = 0;
 }
 
-/**
- * Fetch with timeout and logging
- */
+
 async function fetchWithTimeout(
   url: string,
   options: RequestInit = {},

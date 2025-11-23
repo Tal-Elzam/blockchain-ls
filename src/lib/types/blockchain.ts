@@ -7,7 +7,7 @@
 export interface TransactionOutput {
   type: number;
   spent: boolean;
-  value: number; // Value in satoshis
+  value: number; 
   spending_outpoints?: Array<{
     tx_index: number;
     n: number;
@@ -15,7 +15,7 @@ export interface TransactionOutput {
   n: number;
   tx_index: number;
   script: string;
-  addr?: string; // Destination address
+  addr?: string; 
 }
 
 // Transaction input
@@ -30,8 +30,8 @@ export interface TransactionInput {
     }>;
     tx_index: number;
     type: number;
-    addr?: string; // Source address
-    value: number; // Value in satoshis
+    addr?: string; 
+    value: number;
     n: number;
     script: string;
   };
@@ -42,52 +42,52 @@ export interface TransactionInput {
 export interface Transaction {
   hash: string;
   ver: number;
-  vin_sz: number; // Number of inputs
-  vout_sz: number; // Number of outputs
+  vin_sz: number; 
+  vout_sz: number; 
   size: number;
   weight: number;
-  fee: number; // Transaction fee in satoshis
+  fee: number; 
   relayed_by: string;
   lock_time: number;
   tx_index: number;
   double_spend: boolean;
-  time: number; // Unix timestamp
+  time: number; 
   block_index?: number;
   block_height?: number;
   inputs: TransactionInput[];
   out: TransactionOutput[];
-  result?: number; // Balance change for this address (positive = received, negative = sent)
+  result?: number; 
 }
 
 // Address response from blockchain.info API
 export interface AddressResponse {
   hash160: string;
   address: string;
-  n_tx: number; // Total number of transactions
+  n_tx: number; 
   n_unredeemed: number;
-  total_received: number; // Total received in satoshis
-  total_sent: number; // Total sent in satoshis
-  final_balance: number; // Final balance in satoshis
+  total_received: number; 
+  total_sent: number; 
+  final_balance: number; 
   txs: Transaction[];
 }
 
 // Graph node representing a Bitcoin address
 export interface GraphNode {
-  id: string; // Bitcoin address
+  id: string; 
   label?: string;
-  balance?: number; // Balance in satoshis
-  txCount?: number; // Number of transactions
-  x?: number; // X position for React Flow
-  y?: number; // Y position for React Flow
+  balance?: number; 
+  txCount?: number; 
+  x?: number;
+  y?: number;
 }
 
 // Graph link representing a transaction between addresses
 export interface GraphLink {
-  source: string; // Source address ID
-  target: string; // Destination address ID
-  value: number; // Transaction amount in satoshis
-  txHash: string; // Transaction hash
-  timestamp?: number; // Transaction timestamp
+  source: string;
+  target: string; 
+  value: number; 
+  txHash: string; 
+  timestamp?: number;
 }
 
 // Graph data structure for React Flow
@@ -105,6 +105,6 @@ export interface ApiLogEntry {
   status?: number;
   statusText?: string;
   error?: string;
-  duration?: number; // Request duration in ms
+  duration?: number;
 }
 

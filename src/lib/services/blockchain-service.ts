@@ -54,75 +54,28 @@ export function mergeGraphData(
   };
 }
 
-/**
- * Format satoshis to BTC
- */
 export function formatSatoshisToBTC(satoshis: number): string {
   return (satoshis / 100_000_000).toFixed(8);
 }
 
-/**
- * Format timestamp to readable date
- */
 export function formatTimestamp(timestamp: number): string {
   return new Date(timestamp * 1000).toLocaleString();
 }
 
-/**
- * Format timestamp to relative time (e.g., "2 hours ago")
- */
-export function formatRelativeTime(timestamp: number): string {
-  const seconds = Math.floor((Date.now() - timestamp * 1000) / 1000);
 
-  if (seconds < 60) {
-    return 'just now';
-  }
-
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) {
-    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) {
-    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-  }
-
-  const days = Math.floor(hours / 24);
-  if (days < 30) {
-    return `${days} day${days > 1 ? 's' : ''} ago`;
-  }
-
-  const months = Math.floor(days / 30);
-  if (months < 12) {
-    return `${months} month${months > 1 ? 's' : ''} ago`;
-  }
-
-  const years = Math.floor(months / 12);
-  return `${years} year${years > 1 ? 's' : ''} ago`;
-}
-
-/**
- * Validate Bitcoin address format (basic validation)
- */
 export function isValidBitcoinAddress(address: string): boolean {
-  // Basic validation: Bitcoin addresses are 26-35 characters long
-  // and start with 1, 3, or bc1
-  if (!address || address.length < 26 || address.length > 62) {
+  if (!address || address.length < 26 || address.length > 100) {
     return false;
   }
 
-  // Check for legacy addresses (start with 1 or 3)
   if (/^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(address)) {
     return true;
   }
 
-  // Check for SegWit addresses (start with bc1)
   if (/^bc1[a-z0-9]{39,59}$/i.test(address)) {
     return true;
   }
 
-  // Check for Taproot addresses (start with bc1p)
   if (/^bc1p[a-z0-9]{58}$/i.test(address)) {
     return true;
   }
@@ -130,13 +83,9 @@ export function isValidBitcoinAddress(address: string): boolean {
   return false;
 }
 
-/**
- * Blockchain service class
- */
+
 export class BlockchainService {
-  /**
-   * Fetch address details
-   */
+
   static async getAddressDetails(
     address: string,
     limit = 50,
@@ -145,13 +94,20 @@ export class BlockchainService {
     if (!isValidBitcoinAddress(address)) {
       throw new Error('Invalid Bitcoin address format');
     }
+    // Check if this is a Taproot address (bc1p...) - not supported by blockchain.info
+    if (address.startsWith('bc1p')) {
+      throw new Error('Taproot addresses (bc1p...) are not supported by the blockchain API');
+    }
+
+    // Check if the address is too long (additional safety check)
+    if (address.length > 90) {
+      throw new Error('This address format is not supported by the blockchain API');
+    }
 
     return fetchAddressDetails(address, limit, offset);
   }
 
-  /**
-   * Fetch address graph data
-   */
+  
   static async getAddressGraph(
     address: string,
     limit = 50,
@@ -164,26 +120,13 @@ export class BlockchainService {
     return fetchAddressGraph(address, limit, offset);
   }
 
-  /**
-   * Get API log entries
-   */
+ 
   static getApiLog(): ApiLogEntry[] {
     return getApiLog();
   }
 
-  /**
-   * Clear API log
-   */
+
   static clearApiLog(): void {
     clearApiLog();
   }
 }
-
-// Export individual functions for convenience
-export {
-  fetchAddressDetails,
-  fetchAddressGraph,
-  getApiLog,
-  clearApiLog,
-};
-

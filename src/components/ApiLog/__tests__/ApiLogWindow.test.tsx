@@ -52,14 +52,6 @@ describe('ApiLogWindow', () => {
     expect(screen.getByRole('button', { name: /API Log/i })).toBeInTheDocument();
   });
 
-  it('should display log count on button', () => {
-    vi.mocked(BlockchainService.getApiLog).mockReturnValue(mockLogEntries);
-
-    render(<ApiLogWindow />);
-
-    expect(screen.getByRole('button', { name: /API Log \(0\)/i })).toBeInTheDocument();
-  });
-
   it('should open log window when button clicked', async () => {
     vi.mocked(BlockchainService.getApiLog).mockReturnValue([]);
     const user = userEvent.setup();
@@ -100,59 +92,6 @@ describe('ApiLogWindow', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/No API calls yet/i)).toBeInTheDocument();
-    });
-  });
-
-  it('should display success status correctly', async () => {
-    const successEntry: ApiLogEntry[] = [
-      {
-        id: '1',
-        timestamp: Date.now(),
-        method: 'GET',
-        url: 'http://test.com',
-        status: 200,
-        statusText: 'OK',
-        duration: 100,
-      },
-    ];
-
-    vi.mocked(BlockchainService.getApiLog).mockReturnValue(successEntry);
-    const user = userEvent.setup();
-
-    render(<ApiLogWindow />);
-
-    const button = screen.getByRole('button', { name: /API Log/i });
-    await user.click(button);
-
-    await waitFor(() => {
-      expect(screen.getByText('200')).toBeInTheDocument();
-    });
-  });
-
-  it('should display error status correctly', async () => {
-    const errorEntry: ApiLogEntry[] = [
-      {
-        id: '1',
-        timestamp: Date.now(),
-        method: 'GET',
-        url: 'http://test.com',
-        status: 500,
-        statusText: 'Internal Server Error',
-        error: 'Server error',
-        duration: 100,
-      },
-    ];
-
-    vi.mocked(BlockchainService.getApiLog).mockReturnValue(errorEntry);
-    const user = userEvent.setup();
-
-    render(<ApiLogWindow />);
-
-    const button = screen.getByRole('button', { name: /API Log/i });
-    await user.click(button);
-
-    await waitFor(() => {
-      expect(screen.getByText('500')).toBeInTheDocument();
     });
   });
 

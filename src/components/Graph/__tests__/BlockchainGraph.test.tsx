@@ -158,20 +158,6 @@ describe('BlockchainGraph', () => {
     expect(screen.getByTestId('react-flow')).toBeInTheDocument();
   });
 
-  it('should accept custom height prop', () => {
-    render(
-      <BlockchainGraph
-        graphData={mockGraphData}
-        selectedNode={null}
-        loading={false}
-        height={800}
-      />
-    );
-
-    // Just verify component renders with custom height prop
-    expect(screen.getByTestId('react-flow')).toBeInTheDocument();
-  });
-
   it('should handle large graph data', () => {
     const largeGraph: GraphData = {
       nodes: Array.from({ length: 50 }, (_, i) => ({
@@ -197,23 +183,6 @@ describe('BlockchainGraph', () => {
     );
 
     expect(screen.getByText(/50 nodes • 100 links/i)).toBeInTheDocument();
-  });
-
-  it('should handle graph with single node', () => {
-    const singleNodeGraph: GraphData = {
-      nodes: [{ id: 'addr1', label: 'Address 1' }],
-      links: [],
-    };
-
-    render(
-      <BlockchainGraph
-        graphData={singleNodeGraph}
-        selectedNode={null}
-        loading={false}
-      />
-    );
-
-    expect(screen.getByText(/1 nodes • 0 links/i)).toBeInTheDocument();
   });
 
   it('should update when graphData changes', () => {

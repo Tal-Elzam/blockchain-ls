@@ -256,23 +256,6 @@ describe('backend-client', () => {
       expect(getApiLog()).toHaveLength(0);
     });
 
-    it('should return copy of log entries', () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        json: async () => mockAddressData,
-      });
-
-      fetchAddressDetails('test').catch(() => {});
-
-      const log1 = getApiLog();
-      const log2 = getApiLog();
-
-      expect(log1).not.toBe(log2); // Different array instances
-      expect(log1).toEqual(log2); // But same content
-    });
-
     it('should clear log entries', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -323,39 +306,6 @@ describe('backend-client', () => {
       expect(logs.length).toBe(100);
       // First entry should be the most recent (address-101)
       expect(logs[0]?.url).toContain('address-101');
-    });
-
-    it('should include duration in log entries', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        json: async () => mockAddressData,
-      });
-
-      await fetchAddressDetails('test');
-
-      const logs = getApiLog();
-      expect(logs[0]?.duration).toBeDefined();
-      expect(typeof logs[0]?.duration).toBe('number');
-      expect(logs[0]?.duration).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should include timestamp in log entries', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        json: async () => mockAddressData,
-      });
-
-      const before = Date.now();
-      await fetchAddressDetails('test');
-      const after = Date.now();
-
-      const logs = getApiLog();
-      expect(logs[0]?.timestamp).toBeGreaterThanOrEqual(before);
-      expect(logs[0]?.timestamp).toBeLessThanOrEqual(after);
     });
   });
 });

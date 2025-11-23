@@ -89,8 +89,8 @@ A powerful full-stack application for investigating Bitcoin blockchain transacti
 - **Async Operations** - Non-blocking I/O for better performance
 
 ###  Testing
-- **Frontend**: Vitest + Testing Library (78+ tests, 60%+ coverage)
-- **Backend**: Pytest + Pytest-asyncio (99+ tests, 60%+ coverage)
+- **Frontend**: Vitest + Testing Library (60 tests, 83%+ coverage)
+- **Backend**: Pytest + Pytest-asyncio (41 tests, 54% coverage)
 - **Unit Tests**: Services, utilities, and helpers
 - **Integration Tests**: API endpoints and components
 - **Component Tests**: React components with mocking
@@ -191,7 +191,7 @@ open coverage/index.html
 - Unit tests for utility functions
 - Service layer tests with mocking
 - Component tests with React Testing Library
-- 78+ tests across 10 test suites
+- 60 tests across 6 test suites
 
 ### Backend Tests
 
@@ -215,7 +215,7 @@ open htmlcov/index.html
 - Unit tests for services and utilities
 - Integration tests for API endpoints
 - Mock external API calls with respx
-- 99+ tests across 6 test suites
+- 41 tests across 4 test suites
 
 ##  API Documentation
 

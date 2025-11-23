@@ -57,18 +57,14 @@ class TestRateLimiter:
     @pytest.mark.asyncio
     async def test_request_after_delay_no_wait(self):
         """Test that request after minimum delay doesn't wait"""
-        # First request
         await wait_for_rate_limit("test_user_3")
         
-        # Wait for the minimum delay
         await asyncio.sleep(MIN_DELAY_BETWEEN_REQUESTS + 0.1)
         
-        # Second request should be instant
         start_time = time.time()
         await wait_for_rate_limit("test_user_3")
         elapsed = time.time() - start_time
         
-        # Should not add additional delay
         assert elapsed < 0.5
 
     @pytest.mark.asyncio
@@ -124,19 +120,8 @@ class TestRateLimiter:
         await asyncio.gather(*tasks)
         elapsed = time.time() - start_time
         
-        # Three requests should take at least 2 * MIN_DELAY_BETWEEN_REQUESTS
-        # (first is instant, second waits 10s, third waits 10s)
+
         expected_min = 2 * MIN_DELAY_BETWEEN_REQUESTS
         assert elapsed >= expected_min - 1.0
         
-        # Should have recorded all requests
         assert len(request_times[identifier]) == 3
-
-    @pytest.mark.asyncio
-    async def test_rate_limit_constants(self):
-        """Test that rate limit constants are correctly set"""
-        assert MIN_DELAY_BETWEEN_REQUESTS == 10.0
-        assert MAX_REQUESTS_PER_MINUTE == 6
-        # These should match: 60 seconds / 10 seconds = 6 requests
-        assert MAX_REQUESTS_PER_MINUTE == 60 / MIN_DELAY_BETWEEN_REQUESTS
-

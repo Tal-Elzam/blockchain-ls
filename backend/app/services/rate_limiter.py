@@ -30,7 +30,6 @@ async def wait_for_rate_limit(identifier: str = "default") -> None:
         current_time = time.time()
         last_time = last_request_time[identifier]
         
-        # Calculate time since last request
         time_since_last = current_time - last_time
         
         # Wait if needed to maintain minimum delay
@@ -38,14 +37,13 @@ async def wait_for_rate_limit(identifier: str = "default") -> None:
             wait_time = MIN_DELAY_BETWEEN_REQUESTS - time_since_last
             await asyncio.sleep(wait_time)
             current_time = time.time()
-        # Clean old requests (older than 1 minute)
+        # Clean old requests 
         one_minute_ago = current_time - 60
         request_times[identifier] = [
             req_time for req_time in request_times[identifier]
             if req_time > one_minute_ago
         ]
         
-        # Check if we've exceeded the rate limit
         if len(request_times[identifier]) >= MAX_REQUESTS_PER_MINUTE:
             # Calculate wait time until oldest request expires
             oldest_request = min(request_times[identifier])

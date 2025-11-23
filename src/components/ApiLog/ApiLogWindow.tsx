@@ -7,13 +7,18 @@ import { BlockchainService } from '@/lib/services/blockchain-service';
 export default function ApiLogWindow() {
   const [isOpen, setIsOpen] = useState(false);
   const [logEntries, setLogEntries] = useState<ApiLogEntry[]>([]);
+  const [logCount, setLogCount] = useState(0);
 
+  // Update log count always (even when closed) - for the badge
   useEffect(() => {
-    // Update log entries only when window is open (to avoid unnecessary re-renders)
-    if (!isOpen) return;
-    
     const interval = setInterval(() => {
-      setLogEntries(BlockchainService.getApiLog());
+      const currentLog = BlockchainService.getApiLog();
+      setLogCount(currentLog.length);
+      
+      // Also update full entries if window is open
+      if (isOpen) {
+        setLogEntries(currentLog);
+      }
     }, 1000);
 
     return () => clearInterval(interval);
@@ -22,13 +27,16 @@ export default function ApiLogWindow() {
   // Update once when opening
   useEffect(() => {
     if (isOpen) {
-      setLogEntries(BlockchainService.getApiLog());
+      const currentLog = BlockchainService.getApiLog();
+      setLogEntries(currentLog);
+      setLogCount(currentLog.length);
     }
   }, [isOpen]);
 
   const clearLog = () => {
     BlockchainService.clearApiLog();
     setLogEntries([]);
+    setLogCount(0);
   };
 
   const getStatusColor = (status?: number) => {
@@ -51,7 +59,7 @@ export default function ApiLogWindow() {
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-4 right-4 z-50 rounded-full bg-blue-600 px-4 py-2 text-white shadow-lg hover:bg-blue-700"
       >
-        API Log ({logEntries.length})
+        API Log ({logCount})
       </button>
 
       {isOpen && (

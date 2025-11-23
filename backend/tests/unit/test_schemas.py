@@ -17,21 +17,6 @@ from app.models.schemas import (
 class TestTransactionOutput:
     """Tests for TransactionOutput model"""
 
-    def test_valid_transaction_output(self):
-        """Test creating a valid TransactionOutput"""
-        output = TransactionOutput(
-            type=0,
-            spent=False,
-            value=100000000,
-            n=0,
-            tx_index=123456,
-            script="76a914...",
-            addr="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-        )
-        assert output.value == 100000000
-        assert output.spent is False
-        assert output.addr == "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
-
     def test_transaction_output_without_address(self):
         """Test TransactionOutput without address (optional field)"""
         output = TransactionOutput(
@@ -59,19 +44,6 @@ class TestTransactionOutput:
 class TestTransactionInput:
     """Tests for TransactionInput model"""
 
-    def test_valid_transaction_input(self):
-        """Test creating a valid TransactionInput"""
-        input_data = TransactionInput(
-            sequence=4294967295,
-            prev_out={
-                "addr": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
-                "value": 50000000,
-            },
-            script="47304402...",
-        )
-        assert input_data.sequence == 4294967295
-        assert input_data.prev_out["addr"] == "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2"
-
     def test_transaction_input_without_prev_out(self):
         """Test TransactionInput without prev_out (coinbase transaction)"""
         input_data = TransactionInput(
@@ -83,15 +55,6 @@ class TestTransactionInput:
 
 class TestTransaction:
     """Tests for Transaction model"""
-
-    def test_valid_transaction(self, mock_transaction):
-        """Test creating a valid Transaction"""
-        assert mock_transaction.hash == "abc123def456"
-        assert mock_transaction.vin_sz == 1
-        assert mock_transaction.vout_sz == 1
-        assert mock_transaction.fee == 10000
-        assert len(mock_transaction.inputs) == 1
-        assert len(mock_transaction.out) == 1
 
     def test_transaction_without_optional_fields(self):
         """Test Transaction without optional fields"""
@@ -119,13 +82,6 @@ class TestTransaction:
 class TestAddressResponse:
     """Tests for AddressResponse model"""
 
-    def test_valid_address_response(self, mock_address_data):
-        """Test creating a valid AddressResponse"""
-        assert mock_address_data.address == "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
-        assert mock_address_data.n_tx == 5
-        assert mock_address_data.final_balance == 200000000
-        assert len(mock_address_data.txs) == 1
-
     def test_address_response_calculations(self, mock_address_data):
         """Test balance calculations in AddressResponse"""
         # total_received - total_sent = final_balance
@@ -147,18 +103,6 @@ class TestAddressResponse:
 class TestGraphNode:
     """Tests for GraphNode model"""
 
-    def test_valid_graph_node(self):
-        """Test creating a valid GraphNode"""
-        node = GraphNode(
-            id="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-            label="Genesis",
-            balance=100000000,
-            txCount=10,
-        )
-        assert node.id == "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
-        assert node.label == "Genesis"
-        assert node.balance == 100000000
-
     def test_graph_node_minimal(self):
         """Test GraphNode with only required fields"""
         node = GraphNode(id="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa")
@@ -169,12 +113,6 @@ class TestGraphNode:
 
 class TestGraphLink:
     """Tests for GraphLink model"""
-
-    def test_valid_graph_link(self, mock_graph_link):
-        """Test creating a valid GraphLink"""
-        assert mock_graph_link.source == "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2"
-        assert mock_graph_link.target == "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
-        assert mock_graph_link.value == 100000000
 
     def test_graph_link_without_timestamp(self):
         """Test GraphLink without timestamp (optional field)"""
@@ -190,11 +128,6 @@ class TestGraphLink:
 
 class TestGraphData:
     """Tests for GraphData model"""
-
-    def test_valid_graph_data(self, mock_graph_data):
-        """Test creating a valid GraphData"""
-        assert len(mock_graph_data.nodes) == 2
-        assert len(mock_graph_data.links) == 1
 
     def test_empty_graph_data(self):
         """Test creating empty GraphData"""

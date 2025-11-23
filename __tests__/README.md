@@ -90,13 +90,13 @@ src/
 Target: **60-70%** code coverage
 
 Tests cover:
-- ✅ Utility functions (formatting, validation)
-- ✅ API client (fetch, error handling, logging)
-- ✅ Graph data merging
-- ✅ React components (rendering, props, state)
-- ✅ Error boundaries
-- ✅ Loading states
-- ✅ Error states
+-  Utility functions (formatting, validation)
+-  API client (fetch, error handling, logging)
+-  Graph data merging
+-  React components (rendering, props, state)
+-  Error boundaries
+-  Loading states
+-  Error states
 
 ## Technologies
 

@@ -17,6 +17,7 @@
 /coverage
 htmlcov/
 .vitest-cache
+.benchmarks/
 
 # next.js
 /.next/

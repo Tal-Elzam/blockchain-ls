@@ -233,7 +233,7 @@ function BlockchainGraphInner({
     (_event: React.MouseEvent, node: Node) => {
       setHighlightedNode(node.id);
     },
-    [graphData.nodes]
+    []
   );
 
   // Handle node mouse leave

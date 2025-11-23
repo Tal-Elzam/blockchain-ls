@@ -191,3 +191,56 @@ def sample_blockchain_api_response():
         ],
     }
 
+
+@pytest.fixture
+def inbound_transaction_response():
+    """Sample response with inbound transaction to a target address"""
+    target_addr = "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+    source_addr = "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2"
+    
+    return {
+        "hash160": "62e907b15cbf27d5425399ebf6f0fb50ebb88f18",
+        "address": target_addr,
+        "n_tx": 1,
+        "n_unredeemed": 1,
+        "total_received": 100000000,
+        "total_sent": 0,
+        "final_balance": 100000000,
+        "txs": [
+            {
+                "hash": "tx123",
+                "ver": 1,
+                "vin_sz": 1,
+                "vout_sz": 1,
+                "size": 250,
+                "weight": 1000,
+                "fee": 10000,
+                "relayed_by": "0.0.0.0",
+                "lock_time": 0,
+                "tx_index": 123,
+                "double_spend": False,
+                "time": 1609459200,
+                "inputs": [
+                    {
+                        "sequence": 4294967295,
+                        "prev_out": {
+                            "addr": source_addr,
+                            "value": 100000000,
+                        },
+                        "script": "script",
+                    }
+                ],
+                "out": [
+                    {
+                        "type": 0,
+                        "spent": False,
+                        "value": 100000000,
+                        "n": 0,
+                        "tx_index": 123,
+                        "script": "script",
+                        "addr": target_addr,
+                    }
+                ],
+            }
+        ],
+    }

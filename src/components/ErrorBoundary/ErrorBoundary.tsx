@@ -40,18 +40,11 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
             <div className="mb-4 text-center">
-              <h2 className="mb-2 text-2xl font-bold text-red-600">
-                Something went wrong
-              </h2>
-              <p className="text-gray-600">
-                {this.state.error?.message || 'An unexpected error occurred'}
-              </p>
+              <h2 className="mb-2 text-2xl font-bold text-red-600">Something went wrong</h2>
+              <p className="text-gray-600">{this.state.error?.message || 'An unexpected error occurred'}</p>
             </div>
             <div className="flex justify-center gap-4">
-              <button
-                onClick={this.handleRetry}
-                className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-              >
+              <button onClick={this.handleRetry} className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
                 Try Again
               </button>
               <button
@@ -71,4 +64,3 @@ export class ErrorBoundary extends Component<Props, State> {
 }
 
 export default ErrorBoundary;
-

@@ -7,11 +7,13 @@ FastAPI-based backend API for processing blockchain data.
 1. Ensure you have Python 3.11+ installed
 
 2. Create a virtual environment:
+
 ```bash
 python -m venv venv
 ```
 
 3. Activate the virtual environment:
+
 ```bash
 # Windows
 venv\Scripts\activate
@@ -21,11 +23,13 @@ source venv/bin/activate
 ```
 
 4. Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 5. Create a `.env` file from the example:
+
 ```bash
 copy .env.example .env  # Windows
 cp .env.example .env    # Linux/Mac
@@ -34,11 +38,13 @@ cp .env.example .env    # Linux/Mac
 ## Running the Server
 
 Start the server:
+
 ```bash
 python run.py
 ```
 
 Or run with uvicorn directly:
+
 ```bash
 uvicorn app.main:app --reload --port 8000
 ```
@@ -79,21 +85,25 @@ backend/
 ## API Endpoints
 
 ### GET `/`
+
 Health check endpoint
 
 **Response:**
+
 ```json
 {
+  "docs": "/docs",
   "message": "Blockchain Investigator API is running",
-  "version": "1.0.0",
-  "docs": "/docs"
+  "version": "1.0.0"
 }
 ```
 
 ### GET `/health`
+
 Health check endpoint for monitoring
 
 **Response:**
+
 ```json
 {
   "status": "healthy"
@@ -101,19 +111,23 @@ Health check endpoint for monitoring
 ```
 
 ### GET `/api/address/{address}`
+
 Fetch details for a Bitcoin address
 
 **Parameters:**
+
 - `address`: Bitcoin address (required)
 - `limit`: Number of transactions to fetch (1-100, default: 50)
 - `offset`: Number of transactions to skip (default: 0)
 
 **Example:**
+
 ```
 GET /api/address/1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa?limit=50&offset=0
 ```
 
 **Response:**
+
 ```json
 {
   "address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
@@ -126,29 +140,25 @@ GET /api/address/1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa?limit=50&offset=0
 ```
 
 ### GET `/api/address/{address}/graph`
+
 Fetch address details and convert to graph format
 
 **Parameters:**
+
 - `address`: Bitcoin address (required)
 - `limit`: Number of transactions to fetch (1-100, default: 50)
 - `offset`: Number of transactions to skip (default: 0)
 
 **Example:**
+
 ```
 GET /api/address/1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa/graph?limit=50&offset=0
 ```
 
 **Response:**
+
 ```json
 {
-  "nodes": [
-    {
-      "id": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-      "label": "1A1zP1e...7DivfNa",
-      "balance": 200000000,
-      "txCount": 5
-    }
-  ],
   "links": [
     {
       "source": "source_address",
@@ -156,6 +166,14 @@ GET /api/address/1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa/graph?limit=50&offset=0
       "value": 1000000,
       "txHash": "transaction_hash",
       "timestamp": 1234567890
+    }
+  ],
+  "nodes": [
+    {
+      "id": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "label": "1A1zP1e...7DivfNa",
+      "balance": 200000000,
+      "txCount": 5
     }
   ]
 }
@@ -172,6 +190,7 @@ Create a `.env` file from the example (`.env.example`) and configure:
 - `DEFAULT_TIMEOUT`: Default timeout in seconds (default: 30)
 
 **Example `.env` file:**
+
 ```env
 HOST=0.0.0.0
 PORT=8000
@@ -181,16 +200,19 @@ CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 ## Testing
 
 Run all tests:
+
 ```bash
 pytest
 ```
 
 Run tests with coverage:
+
 ```bash
 pytest --cov=app --cov-report=html --cov-report=term
 ```
 
 Run specific test suites:
+
 ```bash
 # Unit tests only
 pytest tests/unit/
@@ -203,6 +225,7 @@ pytest tests/unit/test_blockchain_service.py
 ```
 
 View coverage report:
+
 ```bash
 # Open in browser
 open htmlcov/index.html  # Mac
@@ -210,6 +233,7 @@ start htmlcov/index.html # Windows
 ```
 
 **Test Coverage:**
+
 - 99+ tests across 6 test suites
 - 60%+ code coverage
 - Unit tests for services, utilities, and models
@@ -234,16 +258,19 @@ The server runs with auto-reload enabled, so any code changes will automatically
 ### Code Quality Tools
 
 Type checking:
+
 ```bash
 mypy app/
 ```
 
 Linting:
+
 ```bash
 flake8 app/
 ```
 
 Code formatting:
+
 ```bash
 black app/
 ```
@@ -270,6 +297,7 @@ Interactive API documentation is automatically generated and available at:
 - **ReDoc**: `http://localhost:8000/redoc`
 
 These interactive docs allow you to:
+
 - View all endpoints and their parameters
 - Test API calls directly from the browser
 - See request/response schemas
@@ -288,6 +316,7 @@ These interactive docs allow you to:
 ## Dependencies
 
 Main dependencies:
+
 - **FastAPI 0.115** - Modern web framework
 - **Uvicorn** - ASGI server
 - **httpx** - Async HTTP client
@@ -295,6 +324,7 @@ Main dependencies:
 - **python-dotenv** - Environment variable management
 
 Testing dependencies:
+
 - **pytest 8.3** - Testing framework
 - **pytest-asyncio** - Async test support
 - **pytest-cov** - Coverage reporting

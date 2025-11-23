@@ -1,17 +1,14 @@
 /**
  * Unit tests for backend-client API functions
  */
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import {
-  fetchAddressDetails,
-  fetchAddressGraph,
-  getApiLog,
-  clearApiLog,
-} from '../backend-client';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { mockAddressData, mockGraphData } from '@/__tests__/__mocks__/handlers';
+import { clearApiLog, fetchAddressDetails, fetchAddressGraph, getApiLog } from '../backend-client';
 
 // Mock fetch globally
 const mockFetch = vi.fn();
+
 global.fetch = mockFetch as any;
 
 describe('backend-client', () => {
@@ -58,14 +55,8 @@ describe('backend-client', () => {
 
       await fetchAddressDetails('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', 10, 5);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('limit=10'),
-        expect.any(Object)
-      );
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('offset=5'),
-        expect.any(Object)
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('limit=10'), expect.any(Object));
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('offset=5'), expect.any(Object));
     });
 
     it('should throw error on non-OK response', async () => {
@@ -75,17 +66,13 @@ describe('backend-client', () => {
         statusText: 'Not Found',
       });
 
-      await expect(
-        fetchAddressDetails('invalid-address')
-      ).rejects.toThrow('Failed to fetch address details');
+      await expect(fetchAddressDetails('invalid-address')).rejects.toThrow('Failed to fetch address details');
     });
 
     it('should handle network errors', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-      await expect(
-        fetchAddressDetails('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
-      ).rejects.toThrow('Network error');
+      await expect(fetchAddressDetails('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')).rejects.toThrow('Network error');
     });
 
     it('should handle timeout', async () => {
@@ -99,9 +86,7 @@ describe('backend-client', () => {
         });
       });
 
-      await expect(
-        fetchAddressDetails('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', 50, 0, 50)
-      ).rejects.toThrow();
+      await expect(fetchAddressDetails('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', 50, 0, 50)).rejects.toThrow();
     });
 
     it('should log successful API calls', async () => {
@@ -130,7 +115,7 @@ describe('backend-client', () => {
 
       try {
         await fetchAddressDetails('invalid-address');
-      } catch (error) {
+      } catch {
         // Expected error
       }
 
@@ -169,14 +154,8 @@ describe('backend-client', () => {
 
       await fetchAddressGraph('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', 20, 10);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('limit=20'),
-        expect.any(Object)
-      );
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('offset=10'),
-        expect.any(Object)
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('limit=20'), expect.any(Object));
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('offset=10'), expect.any(Object));
     });
 
     it('should throw error on non-OK response', async () => {
@@ -187,9 +166,7 @@ describe('backend-client', () => {
         json: async () => ({ detail: 'Server error' }),
       });
 
-      await expect(
-        fetchAddressGraph('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
-      ).rejects.toThrow();
+      await expect(fetchAddressGraph('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')).rejects.toThrow();
     });
 
     it('should handle 503 errors with appropriate message', async () => {
@@ -200,9 +177,9 @@ describe('backend-client', () => {
         json: async () => ({ detail: 'Rate limited' }),
       });
 
-      await expect(
-        fetchAddressGraph('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
-      ).rejects.toThrow(/temporarily unavailable or rate limited/);
+      await expect(fetchAddressGraph('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')).rejects.toThrow(
+        /temporarily unavailable or rate limited/
+      );
     });
 
     it('should parse error detail from response', async () => {
@@ -214,9 +191,7 @@ describe('backend-client', () => {
         json: async () => ({ detail: errorDetail }),
       });
 
-      await expect(
-        fetchAddressGraph('invalid')
-      ).rejects.toThrow(errorDetail);
+      await expect(fetchAddressGraph('invalid')).rejects.toThrow(errorDetail);
     });
 
     it('should handle JSON parsing errors gracefully', async () => {
@@ -229,9 +204,7 @@ describe('backend-client', () => {
         },
       });
 
-      await expect(
-        fetchAddressGraph('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')
-      ).rejects.toThrow();
+      await expect(fetchAddressGraph('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')).rejects.toThrow();
     });
 
     it('should log API calls', async () => {
@@ -309,4 +282,3 @@ describe('backend-client', () => {
     });
   });
 });
-

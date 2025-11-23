@@ -1,26 +1,28 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
 import {
-  ReactFlow,
-  Node,
-  Edge,
-  useNodesState,
-  useEdgesState,
   Background,
-  ReactFlowProvider,
+  Edge,
   MarkerType,
+  Node,
+  ReactFlow,
+  ReactFlowProvider,
+  useEdgesState,
+  useNodesState,
 } from '@xyflow/react';
 import {
-  forceSimulation,
-  forceManyBody,
-  forceLink,
   forceCenter,
   forceCollide,
-  SimulationNodeDatum,
+  forceLink,
+  forceManyBody,
+  forceSimulation,
   SimulationLinkDatum,
+  SimulationNodeDatum,
 } from 'd3-force';
-import type { GraphData, GraphNode as BlockchainGraphNode } from '@/lib/types/blockchain';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import type { GraphNode as BlockchainGraphNode, GraphData } from '@/lib/types/blockchain';
+
 import '@xyflow/react/dist/style.css';
 
 interface BlockchainGraphProps {
@@ -57,6 +59,7 @@ function BlockchainGraphInner({
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [highlightedNode, setHighlightedNode] = useState<string | null>(null);
+
   const simulationRef = useRef<any>(null);
   const tickCountRef = useRef<number>(0);
 
@@ -64,7 +67,7 @@ function BlockchainGraphInner({
   const convertToReactFlowFormat = (data: GraphData, selectedId?: string, highlightedId?: string) => {
     const rfNodes: Node[] = data.nodes.map((node) => {
       const size = node.txCount ? Math.min(40 + node.txCount / 2, 100) : 40;
-      
+
       return {
         id: node.id,
         type: 'default',
@@ -76,8 +79,7 @@ function BlockchainGraphInner({
           fullId: node.id,
         },
         style: {
-          background: selectedId === node.id ? '#ef4444' : 
-                     highlightedId === node.id ? '#3b82f6' : '#6b7280',
+          background: selectedId === node.id ? '#ef4444' : highlightedId === node.id ? '#3b82f6' : '#6b7280',
           color: '#fff',
           border: '2px solid #1f2937',
           borderRadius: '50%',
@@ -96,7 +98,7 @@ function BlockchainGraphInner({
     const rfEdges: Edge[] = data.links.map((link, index) => {
       const valueInBTC = link.value / 100000000;
       const width = Math.min(Math.max(valueInBTC / 10, 1), 5);
-      
+
       return {
         id: `${link.source}-${link.target}-${index}`,
         source: link.source,
@@ -127,8 +129,12 @@ function BlockchainGraphInner({
   useEffect(() => {
     if (graphData.nodes.length === 0) return;
 
-    const { nodes: rfNodes, edges: rfEdges } = convertToReactFlowFormat(graphData, selectedNode?.id, highlightedNode || undefined);
-    
+    const { nodes: rfNodes, edges: rfEdges } = convertToReactFlowFormat(
+      graphData,
+      selectedNode?.id,
+      highlightedNode || undefined
+    );
+
     // Create simulation nodes and links
     const simNodes: SimulationNode[] = graphData.nodes.map((node) => ({
       id: node.id,
@@ -158,7 +164,13 @@ function BlockchainGraphInner({
     // Create new force simulation with controlled cooldown
     const simulation = forceSimulation(simNodes)
       .force('charge', forceManyBody().strength(-300))
-      .force('link', forceLink(simLinks).id((d: any) => d.id).distance(100))
+      .force(
+        'link',
+        forceLink(simLinks)
+
+        .id((d: any) => d.id)
+          .distance(100)
+      )
       .force('center', forceCenter(350, 350))
       .force('collide', forceCollide().radius(40))
       .alphaMin(0.001)
@@ -166,12 +178,12 @@ function BlockchainGraphInner({
 
     simulation.on('tick', () => {
       tickCountRef.current++;
-      
+
       // Stop simulation after max ticks
       if (tickCountRef.current >= maxTicks) {
         simulation.stop();
       }
-      
+
       // Update node positions
       setNodes((nds) =>
         nds.map((node) => {
@@ -209,8 +221,7 @@ function BlockchainGraphInner({
           ...node,
           style: {
             ...node.style,
-            background: selectedNode?.id === node.id ? '#ef4444' : 
-                       highlightedNode === node.id ? '#3b82f6' : '#6b7280',
+            background: selectedNode?.id === node.id ? '#ef4444' : highlightedNode === node.id ? '#3b82f6' : '#6b7280',
             width: size,
             height: size,
           },
@@ -229,12 +240,9 @@ function BlockchainGraphInner({
   );
 
   // Handle node mouse enter (hover)
-  const handleNodeMouseEnter = useCallback(
-    (_event: React.MouseEvent, node: Node) => {
-      setHighlightedNode(node.id);
-    },
-    []
-  );
+  const handleNodeMouseEnter = useCallback((_event: React.MouseEvent, node: Node) => {
+    setHighlightedNode(node.id);
+  }, []);
 
   // Handle node mouse leave
   const handleNodeMouseLeave = useCallback(() => {
@@ -243,10 +251,7 @@ function BlockchainGraphInner({
 
   if (loading) {
     return (
-      <div
-        className="flex items-center justify-center rounded-lg border border-gray-300 bg-gray-50"
-        style={{ height }}
-      >
+      <div className="flex items-center justify-center rounded-lg border border-gray-300 bg-gray-50" style={{ height }}>
         <div className="text-center">
           <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
           <p className="text-gray-600">Loading graph...</p>
@@ -257,10 +262,7 @@ function BlockchainGraphInner({
 
   if (!graphData.nodes.length) {
     return (
-      <div
-        className="flex items-center justify-center rounded-lg border border-gray-300 bg-gray-50"
-        style={{ height }}
-      >
+      <div className="flex items-center justify-center rounded-lg border border-gray-300 bg-gray-50" style={{ height }}>
         <p className="text-gray-600">No graph data available</p>
       </div>
     );

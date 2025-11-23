@@ -1,12 +1,15 @@
 /**
  * Component tests for BlockchainGraph
  */
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
 import { render, screen } from '@/__tests__/utils/test-utils';
 import BlockchainGraph from '../BlockchainGraph';
+
 import type { GraphData, GraphNode } from '@/lib/types/blockchain';
 
 // Mock @xyflow/react
+
 vi.mock('@xyflow/react', () => ({
   ReactFlow: ({ nodes, edges }: any) => (
     <div data-testid="react-flow">
@@ -14,16 +17,8 @@ vi.mock('@xyflow/react', () => ({
       <div data-testid="edges-count">{edges?.length || 0}</div>
     </div>
   ),
-  useNodesState: (initialNodes: any) => [
-    initialNodes,
-    vi.fn(),
-    vi.fn(),
-  ],
-  useEdgesState: (initialEdges: any) => [
-    initialEdges,
-    vi.fn(),
-    vi.fn(),
-  ],
+  useNodesState: (initialNodes: any) => [initialNodes, vi.fn(), vi.fn()],
+  useEdgesState: (initialEdges: any) => [initialEdges, vi.fn(), vi.fn()],
   ReactFlowProvider: ({ children }: any) => <div>{children}</div>,
   useReactFlow: () => ({
     fitView: vi.fn(),
@@ -82,77 +77,41 @@ describe('BlockchainGraph', () => {
 
   it('should render loading state', () => {
     const emptyGraph: GraphData = { nodes: [], links: [] };
-    render(
-      <BlockchainGraph
-        graphData={emptyGraph}
-        selectedNode={null}
-        loading={true}
-      />
-    );
+    render(<BlockchainGraph graphData={emptyGraph} selectedNode={null} loading={true} />);
 
     expect(screen.getByText(/Loading graph/i)).toBeInTheDocument();
   });
 
   it('should render empty state when no data', () => {
     const emptyGraph: GraphData = { nodes: [], links: [] };
-    render(
-      <BlockchainGraph
-        graphData={emptyGraph}
-        selectedNode={null}
-        loading={false}
-      />
-    );
+    render(<BlockchainGraph graphData={emptyGraph} selectedNode={null} loading={false} />);
 
     expect(screen.getByText(/No graph data available/i)).toBeInTheDocument();
   });
 
   it('should render graph with nodes and links', () => {
-    render(
-      <BlockchainGraph
-        graphData={mockGraphData}
-        selectedNode={null}
-        loading={false}
-      />
-    );
+    render(<BlockchainGraph graphData={mockGraphData} selectedNode={null} loading={false} />);
 
     expect(screen.getByTestId('react-flow')).toBeInTheDocument();
   });
 
   it('should display node and link count', () => {
-    render(
-      <BlockchainGraph
-        graphData={mockGraphData}
-        selectedNode={null}
-        loading={false}
-      />
-    );
+    render(<BlockchainGraph graphData={mockGraphData} selectedNode={null} loading={false} />);
 
     expect(screen.getByText(/2 nodes • 1 links/i)).toBeInTheDocument();
   });
 
   it('should handle selectedNode prop', () => {
+
     const selectedNode: GraphNode = mockGraphData.nodes[0]!;
-    render(
-      <BlockchainGraph
-        graphData={mockGraphData}
-        selectedNode={selectedNode}
-        loading={false}
-      />
-    );
+    render(<BlockchainGraph graphData={mockGraphData} selectedNode={selectedNode} loading={false} />);
 
     expect(screen.getByTestId('react-flow')).toBeInTheDocument();
   });
 
   it('should call onNodeClick when provided', () => {
     const onNodeClick = vi.fn();
-    render(
-      <BlockchainGraph
-        graphData={mockGraphData}
-        selectedNode={null}
-        onNodeClick={onNodeClick}
-        loading={false}
-      />
-    );
+    render(<BlockchainGraph graphData={mockGraphData} selectedNode={null} onNodeClick={onNodeClick} loading={false} />);
 
     // Note: Actual click event testing would require more complex setup with ReactFlow
     expect(screen.getByTestId('react-flow')).toBeInTheDocument();
@@ -174,25 +133,13 @@ describe('BlockchainGraph', () => {
       })),
     };
 
-    render(
-      <BlockchainGraph
-        graphData={largeGraph}
-        selectedNode={null}
-        loading={false}
-      />
-    );
+    render(<BlockchainGraph graphData={largeGraph} selectedNode={null} loading={false} />);
 
     expect(screen.getByText(/50 nodes • 100 links/i)).toBeInTheDocument();
   });
 
   it('should update when graphData changes', () => {
-    const { rerender } = render(
-      <BlockchainGraph
-        graphData={mockGraphData}
-        selectedNode={null}
-        loading={false}
-      />
-    );
+    const { rerender } = render(<BlockchainGraph graphData={mockGraphData} selectedNode={null} loading={false} />);
 
     expect(screen.getByText(/2 nodes • 1 links/i)).toBeInTheDocument();
 
@@ -201,15 +148,8 @@ describe('BlockchainGraph', () => {
       links: mockGraphData.links,
     };
 
-    rerender(
-      <BlockchainGraph
-        graphData={newGraphData}
-        selectedNode={null}
-        loading={false}
-      />
-    );
+    rerender(<BlockchainGraph graphData={newGraphData} selectedNode={null} loading={false} />);
 
     expect(screen.getByText(/3 nodes • 1 links/i)).toBeInTheDocument();
   });
 });
-

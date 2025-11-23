@@ -90,13 +90,14 @@ src/
 Target: **60-70%** code coverage
 
 Tests cover:
--  Utility functions (formatting, validation)
--  API client (fetch, error handling, logging)
--  Graph data merging
--  React components (rendering, props, state)
--  Error boundaries
--  Loading states
--  Error states
+
+- Utility functions (formatting, validation)
+- API client (fetch, error handling, logging)
+- Graph data merging
+- React components (rendering, props, state)
+- Error boundaries
+- Loading states
+- Error states
 
 ## Technologies
 
@@ -111,7 +112,8 @@ Tests cover:
 ### Unit Test - Utility Function
 
 ```typescript
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import { formatSatoshisToBTC } from '../blockchain-service';
 
 describe('formatSatoshisToBTC', () => {
@@ -178,9 +180,13 @@ Ensure you've set `environment: 'happy-dom'` in `vitest.config.ts`.
 Increase the timeout:
 
 ```typescript
-it('test', async () => {
-  // ...
-}, { timeout: 10000 }); // 10 seconds
+it(
+  'test',
+  async () => {
+    // ...
+  },
+  { timeout: 10000 }
+); // 10 seconds
 ```
 
 ### Coverage Too Low
@@ -220,8 +226,8 @@ You can add tests to GitHub Actions:
 ```json
 {
   "test": "vitest",
-  "test:ui": "vitest --ui",
-  "test:coverage": "vitest --coverage"
+  "test:coverage": "vitest --coverage",
+  "test:ui": "vitest --ui"
 }
 ```
 
@@ -234,6 +240,7 @@ You can add tests to GitHub Actions:
 ### Test Breakdown
 
 **Unit Tests (48 tests):**
+
 - `blockchain-service.test.ts` - 48 tests
   - Graph data merging (6 tests)
   - BTC formatting (5 tests)
@@ -242,12 +249,14 @@ You can add tests to GitHub Actions:
   - Bitcoin address validation (11 tests)
 
 **Service Tests (22 tests):**
+
 - `backend-client.test.ts` - 22 tests
   - Address details fetching (7 tests)
   - Graph data fetching (7 tests)
   - API log management (8 tests)
 
 **Component Tests (30 tests):**
+
 - `BlockchainGraph.test.tsx` - 10 tests
 - `AddressDetailsPanel.test.tsx` - 8 tests
 - `ApiLogWindow.test.tsx` - 8 tests
@@ -275,6 +284,7 @@ pnpm test -- --silent=false
 ### Inspect Failed Tests
 
 When tests fail, Vitest provides:
+
 - Clear error messages
 - Stack traces
 - Diff of expected vs actual values

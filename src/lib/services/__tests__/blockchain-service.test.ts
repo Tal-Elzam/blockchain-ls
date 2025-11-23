@@ -1,14 +1,11 @@
 /**
  * Unit tests for blockchain service utility functions
  */
-import { describe, it, expect } from 'vitest';
-import {
-  mergeGraphData,
-  formatSatoshisToBTC,
-  formatTimestamp,
-  isValidBitcoinAddress,
-} from '../blockchain-service';
-import type { GraphData, GraphNode, GraphLink } from '@/lib/types/blockchain';
+import { describe, expect, it } from 'vitest';
+
+import { formatSatoshisToBTC, formatTimestamp, isValidBitcoinAddress, mergeGraphData } from '../blockchain-service';
+
+import type { GraphData, GraphLink } from '@/lib/types/blockchain';
 
 describe('mergeGraphData', () => {
   it('should merge two empty graphs', () => {
@@ -160,18 +157,12 @@ describe('isValidBitcoinAddress', () => {
 
   // SegWit addresses (start with bc1)
   it('should validate SegWit (bech32) addresses', () => {
-    expect(
-      isValidBitcoinAddress('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq')
-    ).toBe(true);
+    expect(isValidBitcoinAddress('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq')).toBe(true);
   });
 
   // Taproot addresses (start with bc1p)
   it('should validate Taproot addresses', () => {
-    expect(
-      isValidBitcoinAddress(
-        'bc1p5d7rjq7g6rdk2yhzks9smlaqtedr4dekq08ge8ztwac72sfr9rusxg3297'
-      )
-    ).toBe(true);
+    expect(isValidBitcoinAddress('bc1p5d7rjq7g6rdk2yhzks9smlaqtedr4dekq08ge8ztwac72sfr9rusxg3297')).toBe(true);
   });
 
   // Invalid addresses
@@ -184,11 +175,7 @@ describe('isValidBitcoinAddress', () => {
   });
 
   it('should reject too long addresses', () => {
-    expect(
-      isValidBitcoinAddress(
-        '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-      )
-    ).toBe(false);
+    expect(isValidBitcoinAddress('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')).toBe(false);
   });
 
   it('should reject addresses with invalid characters', () => {
@@ -205,4 +192,3 @@ describe('isValidBitcoinAddress', () => {
     expect(isValidBitcoinAddress('bc1invalidaddress')).toBe(false);
   });
 });
-

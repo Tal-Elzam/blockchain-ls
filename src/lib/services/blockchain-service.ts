@@ -2,27 +2,14 @@
  * Blockchain Service
  * High-level service layer for blockchain operations
  */
-import {
-  fetchAddressDetails,
-  fetchAddressGraph,
-  getApiLog,
-  clearApiLog,
-} from '../api/backend-client';
-import type {
-  AddressResponse,
-  GraphData,
-  GraphNode,
-  GraphLink,
-  ApiLogEntry,
-} from '../types/blockchain';
+import { clearApiLog, fetchAddressDetails, fetchAddressGraph, getApiLog } from '../api/backend-client';
+
+import type { AddressResponse, ApiLogEntry, GraphData, GraphLink, GraphNode } from '../types/blockchain';
 
 /**
  * Merge two graph data structures, avoiding duplicates
  */
-export function mergeGraphData(
-  existing: GraphData,
-  newData: GraphData,
-): GraphData {
+export function mergeGraphData(existing: GraphData, newData: GraphData): GraphData {
   const nodeMap = new Map<string, GraphNode>();
   const linkMap = new Map<string, GraphLink>();
 
@@ -62,7 +49,6 @@ export function formatTimestamp(timestamp: number): string {
   return new Date(timestamp * 1000).toLocaleString();
 }
 
-
 export function isValidBitcoinAddress(address: string): boolean {
   if (!address || address.length < 26 || address.length > 100) {
     return false;
@@ -83,14 +69,8 @@ export function isValidBitcoinAddress(address: string): boolean {
   return false;
 }
 
-
 export class BlockchainService {
-
-  static async getAddressDetails(
-    address: string,
-    limit = 50,
-    offset = 0,
-  ): Promise<AddressResponse> {
+  static async getAddressDetails(address: string, limit = 50, offset = 0): Promise<AddressResponse> {
     if (!isValidBitcoinAddress(address)) {
       throw new Error('Invalid Bitcoin address format');
     }
@@ -107,12 +87,7 @@ export class BlockchainService {
     return fetchAddressDetails(address, limit, offset);
   }
 
-  
-  static async getAddressGraph(
-    address: string,
-    limit = 50,
-    offset = 0,
-  ): Promise<GraphData> {
+  static async getAddressGraph(address: string, limit = 50, offset = 0): Promise<GraphData> {
     if (!isValidBitcoinAddress(address)) {
       throw new Error('Invalid Bitcoin address format');
     }
@@ -120,11 +95,9 @@ export class BlockchainService {
     return fetchAddressGraph(address, limit, offset);
   }
 
- 
   static getApiLog(): ApiLogEntry[] {
     return getApiLog();
   }
-
 
   static clearApiLog(): void {
     clearApiLog();

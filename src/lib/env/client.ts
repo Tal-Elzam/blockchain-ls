@@ -8,10 +8,7 @@ export const clientEnv = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    NEXT_PUBLIC_BACKEND_URL: z
-      .string()
-      .url()
-      .default('http://localhost:8000'),
+    NEXT_PUBLIC_BACKEND_URL: z.string().url().default('http://localhost:8000'),
   },
 
   experimental__runtimeEnv: {

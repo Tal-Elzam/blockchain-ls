@@ -1,7 +1,8 @@
 /**
  * Component tests for ErrorBoundary
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { render, screen } from '@/__tests__/utils/test-utils';
 import { ErrorBoundary } from '@/components/ErrorBoundary/ErrorBoundary';
 
@@ -15,7 +16,7 @@ const ThrowError = ({ shouldThrow }: { shouldThrow?: boolean }) => {
 
 describe('ErrorBoundary', () => {
   const originalError = console.error;
-  
+
   beforeEach(() => {
     // Suppress console.error for these tests
     console.error = vi.fn();
@@ -56,4 +57,3 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText('No error')).toBeInTheDocument();
   });
 });
-

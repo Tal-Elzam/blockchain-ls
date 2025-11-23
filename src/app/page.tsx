@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import BlockchainGraph from '@/components/Graph/BlockchainGraph';
+import { useCallback, useState } from 'react';
+
 import AddressDetailsPanel from '@/components/AddressDetails/AddressDetailsPanel';
 import ApiLogWindow from '@/components/ApiLog/ApiLogWindow';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import BlockchainGraph from '@/components/Graph/BlockchainGraph';
+import { BlockchainService, isValidBitcoinAddress } from '@/lib/services/blockchain-service';
+
 import type { GraphData, GraphNode } from '@/lib/types/blockchain';
-import { BlockchainService } from '@/lib/services/blockchain-service';
-import { mergeGraphData } from '@/lib/services/blockchain-service';
-import { isValidBitcoinAddress } from '@/lib/services/blockchain-service';
 
 export default function Home() {
   const [address, setAddress] = useState('');
@@ -20,7 +20,7 @@ export default function Home() {
 
   const handleSearch = useCallback(async () => {
     const trimmedAddress = inputValue.trim();
-    
+
     if (!trimmedAddress) {
       setError('Please enter a Bitcoin address');
       return;
@@ -39,7 +39,7 @@ export default function Home() {
     try {
       const data = await BlockchainService.getAddressGraph(trimmedAddress, 50, 0);
       setGraphData(data);
-      
+
       // Select the central address node
       const centralNode = data.nodes.find((n) => n.id === trimmedAddress);
       if (centralNode) {
@@ -47,16 +47,18 @@ export default function Home() {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch blockchain data';
-      
+
       // Check if it's a rate limiting or service unavailable error
       if (errorMessage.includes('429') || errorMessage.includes('Too many requests')) {
         setError('Too many requests. Please wait a moment before trying again. The blockchain API has rate limits.');
       } else if (errorMessage.includes('503') || errorMessage.includes('Service Unavailable')) {
-        setError('Blockchain API is temporarily unavailable. This may be due to rate limiting or maintenance. Please try again in a few minutes.');
+        setError(
+          'Blockchain API is temporarily unavailable. This may be due to rate limiting or maintenance. Please try again in a few minutes.'
+        );
       } else {
         setError(errorMessage);
       }
-      
+
       setGraphData({ nodes: [], links: [] });
     } finally {
       setLoading(false);
@@ -79,25 +81,21 @@ export default function Home() {
         {/* Header */}
         <header className="w-full border-b border-gray-200 bg-white shadow-sm">
           <div className="w-full py-4 text-center">
-            <h1 className="text-2xl font-bold text-gray-900">
-              Blockchain Investigator
-            </h1>
-            <p className="text-sm text-gray-600">
-              Visualize Bitcoin blockchain transactions
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900">Blockchain Investigator</h1>
+            <p className="text-sm text-gray-600">Visualize Bitcoin blockchain transactions</p>
           </div>
         </header>
 
         {/* Main Content */}
         <main className="flex-1 mx-auto max-w-[1340px] px-4 pt-8 pb-6 sm:px-6 lg:px-8">
           {/* Search Section */}
-          <div className="rounded-lg border border-gray-300 bg-white p-4 shadow-sm" style={{ marginTop: '20px', marginBottom: '20px' }}>
+          <div
+            className="rounded-lg border border-gray-300 bg-white p-4 shadow-sm"
+            style={{ marginTop: '20px', marginBottom: '20px' }}
+          >
             <div className="flex gap-4">
               <div className="flex-1">
-                <label
-                  htmlFor="address-input"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="address-input" className="mb-2 block text-sm font-medium text-gray-700">
                   Bitcoin Address
                 </label>
                 <input
@@ -112,9 +110,7 @@ export default function Home() {
                   placeholder="Enter Bitcoin address (e.g., bc1ql3smp4dphdfxldzecjkj3h4vt8lw8payekxf7h)"
                   className="w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                {error && (
-                  <p className="mt-2 text-sm text-red-600">{error}</p>
-                )}
+                {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
               </div>
               <div className="flex items-end">
                 <button
@@ -153,18 +149,11 @@ export default function Home() {
           {!address && (
             <div className="flex min-h-[500px] items-center justify-center rounded-lg border border-gray-300 bg-white">
               <div className="text-center">
-                <h2 className="mb-2 text-xl font-semibold text-gray-700">
-                  Get Started
-                </h2>
-                <p className="mb-4 text-gray-600">
-                  Enter a Bitcoin address above to visualize its transaction
-                  network
-                </p>
+                <h2 className="mb-2 text-xl font-semibold text-gray-700">Get Started</h2>
+                <p className="mb-4 text-gray-600">Enter a Bitcoin address above to visualize its transaction network</p>
                 <div className="text-sm text-gray-500">
                   <p>Example address:</p>
-                  <p className="font-mono">
-                    bc1ql3smp4dphdfxldzecjkj3h4vt8lw8payekxf7h
-                  </p>
+                  <p className="font-mono">bc1ql3smp4dphdfxldzecjkj3h4vt8lw8payekxf7h</p>
                 </div>
               </div>
             </div>
@@ -175,7 +164,10 @@ export default function Home() {
         <ApiLogWindow />
 
         {/* Footer */}
-        <footer className="w-full border-t border-gray-200 bg-white flex items-center justify-center py-2" style={{ minHeight: '60px' }}>
+        <footer
+          className="w-full border-t border-gray-200 bg-white flex items-center justify-center py-2"
+          style={{ minHeight: '60px' }}
+        >
           <div className="text-center text-sm text-gray-600">
             Blockchain Investigator - Built with Next.js & FastAPI
           </div>

@@ -1,11 +1,14 @@
 /**
  * Component tests for AddressDetailsPanel
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@/__tests__/utils/test-utils';
-import AddressDetailsPanel from '../AddressDetailsPanel';
-import type { GraphNode } from '@/lib/types/blockchain';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { mockAddressData } from '@/__tests__/__mocks__/handlers';
+import { render, screen, waitFor } from '@/__tests__/utils/test-utils';
+import { BlockchainService } from '@/lib/services/blockchain-service';
+import AddressDetailsPanel from '../AddressDetailsPanel';
+
+import type { GraphNode } from '@/lib/types/blockchain';
 
 // Mock BlockchainService
 vi.mock('@/lib/services/blockchain-service', async () => {
@@ -20,8 +23,6 @@ vi.mock('@/lib/services/blockchain-service', async () => {
     },
   };
 });
-
-import { BlockchainService } from '@/lib/services/blockchain-service';
 
 describe('AddressDetailsPanel', () => {
   const mockNode: GraphNode = {
@@ -42,9 +43,8 @@ describe('AddressDetailsPanel', () => {
   });
 
   it('should show loading state while fetching data', () => {
-    vi.mocked(BlockchainService.getAddressDetails).mockImplementation(
-      () => new Promise(() => {}) 
-    );
+
+    vi.mocked(BlockchainService.getAddressDetails).mockImplementation(() => new Promise(() => {}));
 
     render(<AddressDetailsPanel selectedNode={mockNode} />);
 
@@ -52,9 +52,7 @@ describe('AddressDetailsPanel', () => {
   });
 
   it('should display address details when data is loaded', async () => {
-    vi.mocked(BlockchainService.getAddressDetails).mockResolvedValue(
-      mockAddressData
-    );
+    vi.mocked(BlockchainService.getAddressDetails).mockResolvedValue(mockAddressData);
 
     render(<AddressDetailsPanel selectedNode={mockNode} />);
 
@@ -65,9 +63,7 @@ describe('AddressDetailsPanel', () => {
 
   it('should display error message on fetch failure', async () => {
     const errorMessage = 'Failed to fetch data';
-    vi.mocked(BlockchainService.getAddressDetails).mockRejectedValue(
-      new Error(errorMessage)
-    );
+    vi.mocked(BlockchainService.getAddressDetails).mockRejectedValue(new Error(errorMessage));
 
     render(<AddressDetailsPanel selectedNode={mockNode} />);
 
@@ -77,25 +73,17 @@ describe('AddressDetailsPanel', () => {
   });
 
   it('should call getAddressDetails with correct parameters', async () => {
-    vi.mocked(BlockchainService.getAddressDetails).mockResolvedValue(
-      mockAddressData
-    );
+    vi.mocked(BlockchainService.getAddressDetails).mockResolvedValue(mockAddressData);
 
     render(<AddressDetailsPanel selectedNode={mockNode} />);
 
     await waitFor(() => {
-      expect(BlockchainService.getAddressDetails).toHaveBeenCalledWith(
-        mockNode.id,
-        10,
-        0
-      );
+      expect(BlockchainService.getAddressDetails).toHaveBeenCalledWith(mockNode.id, 10, 0);
     });
   });
 
   it('should reset data when selectedNode changes to null', async () => {
-    vi.mocked(BlockchainService.getAddressDetails).mockResolvedValue(
-      mockAddressData
-    );
+    vi.mocked(BlockchainService.getAddressDetails).mockResolvedValue(mockAddressData);
 
     const { rerender } = render(<AddressDetailsPanel selectedNode={mockNode} />);
 
@@ -109,9 +97,7 @@ describe('AddressDetailsPanel', () => {
   });
 
   it('should fetch new data when selectedNode changes', async () => {
-    vi.mocked(BlockchainService.getAddressDetails).mockResolvedValue(
-      mockAddressData
-    );
+    vi.mocked(BlockchainService.getAddressDetails).mockResolvedValue(mockAddressData);
 
     const { rerender } = render(<AddressDetailsPanel selectedNode={mockNode} />);
 
@@ -128,12 +114,7 @@ describe('AddressDetailsPanel', () => {
 
     await waitFor(() => {
       expect(BlockchainService.getAddressDetails).toHaveBeenCalledTimes(2);
-      expect(BlockchainService.getAddressDetails).toHaveBeenLastCalledWith(
-        newNode.id,
-        10,
-        0
-      );
+      expect(BlockchainService.getAddressDetails).toHaveBeenLastCalledWith(newNode.id, 10, 0);
     });
   });
 });
-

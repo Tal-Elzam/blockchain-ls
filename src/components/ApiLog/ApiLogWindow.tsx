@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import type { ApiLogEntry } from '@/lib/types/blockchain';
+import { useEffect, useState } from 'react';
+
 import { BlockchainService } from '@/lib/services/blockchain-service';
+
+import type { ApiLogEntry } from '@/lib/types/blockchain';
 
 export default function ApiLogWindow() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +16,7 @@ export default function ApiLogWindow() {
     const interval = setInterval(() => {
       const currentLog = BlockchainService.getApiLog();
       setLogCount(currentLog.length);
-      
+
       // Also update full entries if window is open
       if (isOpen) {
         setLogEntries(currentLog);
@@ -23,11 +25,12 @@ export default function ApiLogWindow() {
 
     return () => clearInterval(interval);
   }, [isOpen]);
-  
+
   // Update once when opening
   useEffect(() => {
     if (isOpen) {
       const currentLog = BlockchainService.getApiLog();
+
       setLogEntries(currentLog);
       setLogCount(currentLog.length);
     }
@@ -67,16 +70,10 @@ export default function ApiLogWindow() {
           <div className="flex items-center justify-between border-b border-gray-200 p-3">
             <h3 className="font-semibold">API Call Log</h3>
             <div className="flex gap-2">
-              <button
-                onClick={clearLog}
-                className="rounded px-2 py-1 text-xs text-gray-600 hover:bg-gray-100"
-              >
+              <button onClick={clearLog} className="rounded px-2 py-1 text-xs text-gray-600 hover:bg-gray-100">
                 Clear
               </button>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
+              <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-gray-700">
                 ✕
               </button>
             </div>
@@ -84,43 +81,22 @@ export default function ApiLogWindow() {
 
           <div className="max-h-96 overflow-y-auto p-2">
             {logEntries.length === 0 ? (
-              <div className="py-8 text-center text-sm text-gray-500">
-                No API calls yet
-              </div>
+              <div className="py-8 text-center text-sm text-gray-500">No API calls yet</div>
             ) : (
               <div className="space-y-2">
                 {logEntries.map((entry) => (
-                  <div
-                    key={entry.id}
-                    className="rounded border border-gray-200 p-2 text-xs"
-                  >
+                  <div key={entry.id} className="rounded border border-gray-200 p-2 text-xs">
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="font-mono text-xs font-semibold">
-                        {entry.method}
-                      </span>
+                      <span className="font-mono text-xs font-semibold">{entry.method}</span>
                       <div className="flex items-center gap-2">
-                        {entry.status && (
-                          <span className={getStatusColor(entry.status)}>
-                            {entry.status}
-                          </span>
-                        )}
-                        <span className="text-gray-500">
-                          {formatDuration(entry.duration)}
-                        </span>
+                        {entry.status && <span className={getStatusColor(entry.status)}>{entry.status}</span>}
+                        <span className="text-gray-500">{formatDuration(entry.duration)}</span>
                       </div>
                     </div>
                     <div className="truncate text-gray-600">{entry.url}</div>
-                    {entry.error && (
-                      <div className="mt-1 text-red-600">{entry.error}</div>
-                    )}
-                    {entry.statusText && (
-                      <div className="mt-1 text-gray-500">
-                        {entry.statusText}
-                      </div>
-                    )}
-                    <div className="mt-1 text-xs text-gray-400">
-                      {new Date(entry.timestamp).toLocaleTimeString()}
-                    </div>
+                    {entry.error && <div className="mt-1 text-red-600">{entry.error}</div>}
+                    {entry.statusText && <div className="mt-1 text-gray-500">{entry.statusText}</div>}
+                    <div className="mt-1 text-xs text-gray-400">{new Date(entry.timestamp).toLocaleTimeString()}</div>
                   </div>
                 ))}
               </div>
@@ -140,4 +116,3 @@ export default function ApiLogWindow() {
     </>
   );
 }
-

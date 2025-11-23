@@ -1,17 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import type { GraphNode, AddressResponse } from '@/lib/types/blockchain';
-import { formatSatoshisToBTC, formatTimestamp } from '@/lib/services/blockchain-service';
-import { BlockchainService } from '@/lib/services/blockchain-service';
+import { useEffect, useState } from 'react';
+
+import { BlockchainService, formatSatoshisToBTC, formatTimestamp } from '@/lib/services/blockchain-service';
+
+import type { AddressResponse, GraphNode } from '@/lib/types/blockchain';
 
 interface AddressDetailsPanelProps {
   selectedNode: GraphNode | null;
 }
 
-export default function AddressDetailsPanel({
-  selectedNode,
-}: AddressDetailsPanelProps) {
+export default function AddressDetailsPanel({ selectedNode }: AddressDetailsPanelProps) {
   const [addressData, setAddressData] = useState<AddressResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,12 +19,14 @@ export default function AddressDetailsPanel({
   useEffect(() => {
     if (selectedNode) {
       if (selectedNode.id.startsWith('bc1p')) {
-        setError(' Taproot addresses (bc1p...) are not supported by the blockchain API. Please select a different node.');
+        setError(
+          ' Taproot addresses (bc1p...) are not supported by the blockchain API. Please select a different node.'
+        );
         setAddressData(null);
         setLoading(false);
         return;
       }
-  
+
       // Additional check for very long addresses
       if (selectedNode.id.length > 72) {
         setError(' This address format is not supported by the blockchain API. Please select a different node.');
@@ -37,7 +38,7 @@ export default function AddressDetailsPanel({
       setLoading(true);
       setError(null);
       setOffset(0);
-      
+
       BlockchainService.getAddressDetails(selectedNode.id, 10, 0)
         .then((data) => {
           setAddressData(data);
@@ -45,10 +46,7 @@ export default function AddressDetailsPanel({
         })
         .catch((err) => {
           console.error('Error fetching address details:', err);
-          setError(
-            err.message || 
-            (typeof err === 'string' ? err : 'Failed to fetch address details')
-          );
+          setError(err.message || (typeof err === 'string' ? err : 'Failed to fetch address details'));
           setAddressData(null);
         })
         .finally(() => {
@@ -62,17 +60,13 @@ export default function AddressDetailsPanel({
 
   const handleLoadMore = async () => {
     if (!selectedNode || !addressData) return;
-    
+
     const newOffset = offset + 10;
     setLoading(true);
-    
+
     try {
-      const newData = await BlockchainService.getAddressDetails(
-        selectedNode.id,
-        10,
-        newOffset,
-      );
-      
+      const newData = await BlockchainService.getAddressDetails(selectedNode.id, 10, newOffset);
+
       // Merge transactions
       setAddressData({
         ...addressData,
@@ -96,9 +90,14 @@ export default function AddressDetailsPanel({
   }
 
   return (
-    <div className="rounded-lg border border-gray-300 bg-white p-4 h-[700px] w-full flex flex-col" style={{ minWidth: '300px' }}>
+    <div
+      className="rounded-lg border border-gray-300 bg-white p-4 h-[700px] w-full flex flex-col"
+      style={{ minWidth: '300px' }}
+    >
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-lg font-semibold" style={{ color: '#1c272f' }}>Address Details</h3>
+        <h3 className="text-lg font-semibold" style={{ color: '#1c272f' }}>
+          Address Details
+        </h3>
         <button
           onClick={() => {
             setAddressData(null);
@@ -119,32 +118,26 @@ export default function AddressDetailsPanel({
         </div>
       )}
 
-      {error && (
-        <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-800">
-          {error}
-        </div>
-      )}
+      {error && <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-800">{error}</div>}
 
       {addressData && (
         <div className="flex flex-col flex-1 space-y-4 min-h-0">
           <div>
             <label className="text-xs font-medium text-gray-500">Address</label>
-            <p className="break-all font-mono text-sm" style={{ color: '#1c272f' }}>{addressData.address}</p>
+            <p className="break-all font-mono text-sm" style={{ color: '#1c272f' }}>
+              {addressData.address}
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-medium text-gray-500">
-                Final Balance
-              </label>
+              <label className="text-xs font-medium text-gray-500">Final Balance</label>
               <p className="text-lg font-semibold" style={{ color: '#1c272f' }}>
                 {formatSatoshisToBTC(addressData.final_balance)} BTC
               </p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-500">
-                Total Received
-              </label>
+              <label className="text-xs font-medium text-gray-500">Total Received</label>
               <p className="text-sm" style={{ color: '#1c272f' }}>
                 {formatSatoshisToBTC(addressData.total_received)} BTC
               </p>
@@ -153,21 +146,19 @@ export default function AddressDetailsPanel({
 
           <div className="grid grid-cols-3 gap-4 rounded bg-gray-50 p-3">
             <div>
-              <label className="text-xs font-medium text-gray-500">
-                Total TXs
-              </label>
-              <p className="text-lg font-semibold" style={{ color: '#1c272f' }}>{addressData.n_tx}</p>
+              <label className="text-xs font-medium text-gray-500">Total TXs</label>
+              <p className="text-lg font-semibold" style={{ color: '#1c272f' }}>
+                {addressData.n_tx}
+              </p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-500">
-                Loaded TXs
-              </label>
-              <p className="text-lg font-semibold" style={{ color: '#1c272f' }}>{addressData.txs.length}</p>
+              <label className="text-xs font-medium text-gray-500">Loaded TXs</label>
+              <p className="text-lg font-semibold" style={{ color: '#1c272f' }}>
+                {addressData.txs.length}
+              </p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-500">
-                Unredeemed
-              </label>
+              <label className="text-xs font-medium text-gray-500">Unredeemed</label>
               <p className="text-lg font-semibold" style={{ color: '#1c272f' }}>
                 {addressData.n_unredeemed}
               </p>
@@ -181,17 +172,12 @@ export default function AddressDetailsPanel({
               </label>
               <div className="flex-1 space-y-3 overflow-y-auto min-h-0">
                 {addressData.txs.map((tx) => (
-                  <div
-                    key={tx.hash}
-                    className="rounded border border-gray-200 p-3 text-sm"
-                  >
+                  <div key={tx.hash} className="rounded border border-gray-200 p-3 text-sm">
                     <div className="mb-2 flex items-center justify-between">
                       <span className="font-mono text-sm" style={{ color: '#1c272f' }}>
                         {tx.hash.slice(0, 16)}...
                       </span>
-                      <span className="text-gray-500 text-xs">
-                        {formatTimestamp(tx.time)}
-                      </span>
+                      <span className="text-gray-500 text-xs">{formatTimestamp(tx.time)}</span>
                     </div>
                     <div className="text-base font-medium" style={{ color: '#1c272f' }}>
                       {tx.result && tx.result > 0 ? '+' : ''}

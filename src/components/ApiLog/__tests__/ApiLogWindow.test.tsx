@@ -1,10 +1,13 @@
 /**
  * Component tests for ApiLogWindow
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@/__tests__/utils/test-utils';
 import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { render, screen, waitFor } from '@/__tests__/utils/test-utils';
+import { BlockchainService } from '@/lib/services/blockchain-service';
 import ApiLogWindow from '../ApiLogWindow';
+
 import type { ApiLogEntry } from '@/lib/types/blockchain';
 
 // Mock BlockchainService
@@ -14,8 +17,6 @@ vi.mock('@/lib/services/blockchain-service', () => ({
     clearApiLog: vi.fn(),
   },
 }));
-
-import { BlockchainService } from '@/lib/services/blockchain-service';
 
 describe('ApiLogWindow', () => {
   const mockLogEntries: ApiLogEntry[] = [
@@ -131,4 +132,3 @@ describe('ApiLogWindow', () => {
     });
   });
 });
-

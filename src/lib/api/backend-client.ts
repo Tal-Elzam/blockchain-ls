@@ -3,11 +3,8 @@
  * HTTP client for communicating with the Python FastAPI backend
  */
 import { clientEnv } from '../env/client';
-import type {
-  AddressResponse,
-  GraphData,
-  ApiLogEntry,
-} from '../types/blockchain';
+
+import type { AddressResponse, ApiLogEntry, GraphData } from '../types/blockchain';
 
 // Direct backend API calls from the browser
 // Using NEXT_PUBLIC_ prefix to expose the backend URL to the client
@@ -27,18 +24,17 @@ function addApiLogEntry(entry: ApiLogEntry): void {
 }
 
 export function getApiLog(): ApiLogEntry[] {
-  return [...apiLog]; 
+  return [...apiLog];
 }
 
 export function clearApiLog(): void {
   apiLog.length = 0;
 }
 
-
 async function fetchWithTimeout(
   url: string,
   options: RequestInit = {},
-  timeoutMs = DEFAULT_TIMEOUT,
+  timeoutMs = DEFAULT_TIMEOUT
 ): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
@@ -97,7 +93,7 @@ export async function fetchAddressDetails(
   address: string,
   limit = 50,
   offset = 0,
-  timeoutMs = DEFAULT_TIMEOUT,
+  timeoutMs = DEFAULT_TIMEOUT
 ): Promise<AddressResponse> {
   // Direct call to Python backend
   const url = `${BACKEND_URL}/api/address/${address}?limit=${limit}&offset=${offset}`;
@@ -108,13 +104,11 @@ export async function fetchAddressDetails(
       {
         method: 'GET',
       },
-      timeoutMs,
+      timeoutMs
     );
 
     if (!response.ok) {
-      throw new Error(
-        `Failed to fetch address details: ${response.status} ${response.statusText}`,
-      );
+      throw new Error(`Failed to fetch address details: ${response.status} ${response.statusText}`);
     }
 
     return (await response.json()) as AddressResponse;
@@ -133,7 +127,7 @@ export async function fetchAddressGraph(
   address: string,
   limit = 50,
   offset = 0,
-  timeoutMs = DEFAULT_TIMEOUT,
+  timeoutMs = DEFAULT_TIMEOUT
 ): Promise<GraphData> {
   // Direct call to Python backend
   const url = `${BACKEND_URL}/api/address/${address}/graph?limit=${limit}&offset=${offset}`;
@@ -144,12 +138,12 @@ export async function fetchAddressGraph(
       {
         method: 'GET',
       },
-      timeoutMs,
+      timeoutMs
     );
 
     if (!response.ok) {
       let errorMessage = `Failed to fetch graph data: ${response.status} ${response.statusText}`;
-      
+
       try {
         const errorData = await response.json();
         if (errorData.detail) {
@@ -158,12 +152,12 @@ export async function fetchAddressGraph(
       } catch {
         // If JSON parsing fails, use default error message
       }
-      
+
       // Add more context for 503 errors
       if (response.status === 503) {
         errorMessage = `${errorMessage}. The blockchain API may be temporarily unavailable or rate limited. Please try again in a few minutes.`;
       }
-      
+
       throw new Error(errorMessage);
     }
 
@@ -175,4 +169,3 @@ export async function fetchAddressGraph(
     throw new Error(`Unexpected error: ${String(error)}`);
   }
 }
-

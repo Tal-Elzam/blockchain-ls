@@ -8,7 +8,7 @@ A powerful full-stack application for investigating Bitcoin blockchain transacti
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-teal.svg)](https://fastapi.tiangolo.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 
-##  Architecture Overview
+## Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -69,9 +69,10 @@ A powerful full-stack application for investigating Bitcoin blockchain transacti
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-##  Features
+## Features
 
-###  Frontend (Next.js + React)
+### Frontend (Next.js + React)
+
 - **Interactive Graph Visualization** - D3-Force physics simulation with ReactFlow
 - **Real-time Transaction Tracking** - Live updates of blockchain transactions
 - **Address Details Panel** - Comprehensive view of wallet information
@@ -80,7 +81,8 @@ A powerful full-stack application for investigating Bitcoin blockchain transacti
 - **Error Boundaries** - Graceful error handling and recovery
 - **Type Safety** - Full TypeScript coverage
 
-###  Backend (Python + FastAPI)
+### Backend (Python + FastAPI)
+
 - **RESTful API** - Clean, documented endpoints
 - **Rate Limiting** - Intelligent request throttling (10s between requests)
 - **Data Transformation** - Convert blockchain data to graph format
@@ -88,14 +90,15 @@ A powerful full-stack application for investigating Bitcoin blockchain transacti
 - **CORS Support** - Secure cross-origin requests
 - **Async Operations** - Non-blocking I/O for better performance
 
-###  Testing
+### Testing
+
 - **Frontend**: Vitest + Testing Library (60 tests, 83%+ coverage)
 - **Backend**: Pytest + Pytest-asyncio (41 tests, 54% coverage)
 - **Unit Tests**: Services, utilities, and helpers
 - **Integration Tests**: API endpoints and components
 - **Component Tests**: React components with mocking
 
-##  Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -139,11 +142,13 @@ pnpm install
 #### 4. Configure Environment Variables
 
 **Frontend** (`.env.local` in root):
+
 ```env
 NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
 ```
 
 **Backend** (`backend/.env`):
+
 ```env
 PORT=8000
 HOST=0.0.0.0
@@ -188,6 +193,7 @@ open coverage/index.html
 ```
 
 **Test Coverage:**
+
 - Unit tests for utility functions
 - Service layer tests with mocking
 - Component tests with React Testing Library
@@ -212,31 +218,36 @@ open htmlcov/index.html
 ```
 
 **Test Coverage:**
+
 - Unit tests for services and utilities
 - Integration tests for API endpoints
 - Mock external API calls with respx
 - 41 tests across 4 test suites
 
-##  API Documentation
+## API Documentation
 
 ### Endpoints
 
 #### GET `/`
+
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
+  "docs": "/docs",
   "message": "Blockchain Investigator API is running",
-  "version": "1.0.0",
-  "docs": "/docs"
+  "version": "1.0.0"
 }
 ```
 
 #### GET `/health`
+
 Health status endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "healthy"
@@ -244,14 +255,17 @@ Health status endpoint.
 ```
 
 #### GET `/api/address/{address}`
+
 Fetch detailed information about a Bitcoin address.
 
 **Parameters:**
+
 - `address` (path) - Bitcoin address
 - `limit` (query, optional) - Number of transactions (1-100, default: 50)
 - `offset` (query, optional) - Number of transactions to skip (default: 0)
 
 **Response:**
+
 ```json
 {
   "address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
@@ -264,24 +278,19 @@ Fetch detailed information about a Bitcoin address.
 ```
 
 #### GET `/api/address/{address}/graph`
+
 Get transaction graph data for visualization.
 
 **Parameters:**
+
 - `address` (path) - Bitcoin address
 - `limit` (query, optional) - Number of transactions (1-100, default: 50)
 - `offset` (query, optional) - Number of transactions to skip (default: 0)
 
 **Response:**
+
 ```json
 {
-  "nodes": [
-    {
-      "id": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-      "label": "1A1zP1eP...DivfNa",
-      "balance": 200000000,
-      "txCount": 5
-    }
-  ],
   "links": [
     {
       "source": "addr1",
@@ -289,6 +298,14 @@ Get transaction graph data for visualization.
       "value": 100000000,
       "txHash": "abc123...",
       "timestamp": 1609459200
+    }
+  ],
+  "nodes": [
+    {
+      "id": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+      "label": "1A1zP1eP...DivfNa",
+      "balance": 200000000,
+      "txCount": 5
     }
   ]
 }
@@ -298,7 +315,7 @@ Get transaction graph data for visualization.
 
 Visit `http://localhost:8000/docs` for interactive Swagger UI documentation.
 
-##  Project Structure
+## Project Structure
 
 ```
 blockchain-ls/
@@ -344,6 +361,7 @@ blockchain-ls/
 ## 🛠️ Technology Stack
 
 ### Frontend
+
 - **Framework**: Next.js 16 (App Router)
 - **UI Library**: React 19
 - **Language**: TypeScript 5.9
@@ -355,6 +373,7 @@ blockchain-ls/
 - **Environment**: T3 Env (type-safe env vars)
 
 ### Backend
+
 - **Framework**: FastAPI 0.115
 - **Language**: Python 3.11+
 - **Server**: Uvicorn (ASGI)
@@ -363,7 +382,7 @@ blockchain-ls/
 - **Testing**: Pytest 8 + Pytest-asyncio
 - **Mocking**: respx 0.21
 
-##  Scripts
+## Scripts
 
 ### Frontend Scripts
 
@@ -390,7 +409,7 @@ pytest tests/unit              # Run unit tests only
 pytest tests/integration       # Run integration tests only
 ```
 
-##  Security Features
+## Security Features
 
 - **Content Security Policy (CSP)** - Configured in `next.config.ts`
 - **CORS Protection** - Whitelisted origins only
@@ -399,7 +418,7 @@ pytest tests/integration       # Run integration tests only
 - **Error Boundaries** - Frontend catches and handles errors gracefully
 - **Type Safety** - Full TypeScript and Pydantic coverage
 
-##  Rate Limiting
+## Rate Limiting
 
 The application respects blockchain.info API rate limits:
 
@@ -408,11 +427,12 @@ The application respects blockchain.info API rate limits:
 - **Automatic retry**: On 429 (rate limit) errors
 - **Smart queuing**: Requests are queued and processed sequentially
 
-##  Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
 **Backend won't start:**
+
 ```bash
 # Make sure virtual environment is activated
 cd backend
@@ -421,11 +441,13 @@ pip install -r requirements.txt
 ```
 
 **Frontend can't connect to backend:**
+
 - Check that backend is running on port 8000
 - Verify `NEXT_PUBLIC_BACKEND_URL` in `.env.local`
 - Check CORS settings in `backend/app/main.py`
 
 **Tests failing:**
+
 ```bash
 # Frontend
 pnpm install
@@ -438,17 +460,18 @@ pytest
 ```
 
 **Rate limiting errors:**
+
 - The blockchain.info API has strict rate limits
 - Wait at least 10 seconds between requests
 - Consider implementing a caching layer for frequently accessed addresses
 
-##  Additional Documentation
+## Additional Documentation
 
 - **Frontend Tests**: See `__tests__/README.md`
 - **Backend Tests**: See `backend/tests/README.md`
 - **API Documentation**: Visit `http://localhost:8000/docs` when running
 
-##  Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -475,4 +498,3 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 - [Next.js](https://nextjs.org/) for the powerful React framework
 
 ---
-

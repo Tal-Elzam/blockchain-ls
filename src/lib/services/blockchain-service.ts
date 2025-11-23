@@ -68,7 +68,7 @@ export function isValidBitcoinAddress(address: string): boolean {
 
   return false;
 }
-
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class BlockchainService {
   static async getAddressDetails(address: string, limit = 50, offset = 0): Promise<AddressResponse> {
     if (!isValidBitcoinAddress(address)) {

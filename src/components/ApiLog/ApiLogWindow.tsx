@@ -30,7 +30,7 @@ export default function ApiLogWindow() {
   useEffect(() => {
     if (isOpen) {
       const currentLog = BlockchainService.getApiLog();
-
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLogEntries(currentLog);
       setLogCount(currentLog.length);
     }

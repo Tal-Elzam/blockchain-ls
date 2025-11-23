@@ -8,7 +8,7 @@ import { clearApiLog, fetchAddressDetails, fetchAddressGraph, getApiLog } from '
 
 // Mock fetch globally
 const mockFetch = vi.fn();
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 global.fetch = mockFetch as any;
 
 describe('backend-client', () => {

@@ -43,7 +43,7 @@ describe('AddressDetailsPanel', () => {
   });
 
   it('should show loading state while fetching data', () => {
-
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     vi.mocked(BlockchainService.getAddressDetails).mockImplementation(() => new Promise(() => {}));
 
     render(<AddressDetailsPanel selectedNode={mockNode} />);

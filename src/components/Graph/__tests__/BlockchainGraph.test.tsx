@@ -11,14 +11,18 @@ import type { GraphData, GraphNode } from '@/lib/types/blockchain';
 // Mock @xyflow/react
 
 vi.mock('@xyflow/react', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ReactFlow: ({ nodes, edges }: any) => (
     <div data-testid="react-flow">
       <div data-testid="nodes-count">{nodes?.length || 0}</div>
       <div data-testid="edges-count">{edges?.length || 0}</div>
     </div>
   ),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useNodesState: (initialNodes: any) => [initialNodes, vi.fn(), vi.fn()],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useEdgesState: (initialEdges: any) => [initialEdges, vi.fn(), vi.fn()],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ReactFlowProvider: ({ children }: any) => <div>{children}</div>,
   useReactFlow: () => ({
     fitView: vi.fn(),
@@ -102,7 +106,7 @@ describe('BlockchainGraph', () => {
   });
 
   it('should handle selectedNode prop', () => {
-
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const selectedNode: GraphNode = mockGraphData.nodes[0]!;
     render(<BlockchainGraph graphData={mockGraphData} selectedNode={selectedNode} loading={false} />);
 

@@ -59,7 +59,7 @@ function BlockchainGraphInner({
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [highlightedNode, setHighlightedNode] = useState<string | null>(null);
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const simulationRef = useRef<any>(null);
   const tickCountRef = useRef<number>(0);
 
@@ -167,8 +167,8 @@ function BlockchainGraphInner({
       .force(
         'link',
         forceLink(simLinks)
-
-        .id((d: any) => d.id)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .id((d: any) => d.id)
           .distance(100)
       )
       .force('center', forceCenter(350, 350))

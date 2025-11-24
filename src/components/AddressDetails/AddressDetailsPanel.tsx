@@ -8,9 +8,10 @@ import type { AddressResponse, GraphNode } from '@/lib/types/blockchain';
 
 interface AddressDetailsPanelProps {
   selectedNode: GraphNode | null;
+  onUpdateGraph?: (nodeId: string, offset: number) => Promise<void>;
 }
 
-export default function AddressDetailsPanel({ selectedNode }: AddressDetailsPanelProps) {
+export default function AddressDetailsPanel({ selectedNode, onUpdateGraph }: AddressDetailsPanelProps) {
   const [addressData, setAddressData] = useState<AddressResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +74,11 @@ export default function AddressDetailsPanel({ selectedNode }: AddressDetailsPane
         txs: [...addressData.txs, ...newData.txs],
       });
       setOffset(newOffset);
+
+      // Also update the graph with new connections from these transactions
+      if (onUpdateGraph) {
+        await onUpdateGraph(selectedNode.id, newOffset);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load more transactions');
     } finally {
@@ -91,8 +97,8 @@ export default function AddressDetailsPanel({ selectedNode }: AddressDetailsPane
 
   return (
     <div
-      className="rounded-lg border border-gray-300 bg-white p-4 h-[700px] w-full flex flex-col"
-      style={{ minWidth: '300px' }}
+      className="rounded-lg border border-gray-300 bg-white p-[21px] h-[700px] w-full flex flex-col"
+      style={{ minWidth: '300px', paddingLeft: '5px', paddingRight: '5px',paddingTop: '10px' }}
     >
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold" style={{ color: '#1c272f' }}>
@@ -121,8 +127,9 @@ export default function AddressDetailsPanel({ selectedNode }: AddressDetailsPane
       {error && <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-800">{error}</div>}
 
       {addressData && (
-        <div className="flex flex-col flex-1 space-y-4 min-h-0">
-          <div>
+        <div className="flex flex-col flex-1 space-y-4 min-h-0 mx-5"
+        style={{paddingBottom: '5px' }}>
+          <div style={{paddingBottom: '10px' }}>
             <label className="text-xs font-medium text-gray-500">Address</label>
             <p className="break-all font-mono text-sm" style={{ color: '#1c272f' }}>
               {addressData.address}
@@ -170,7 +177,7 @@ export default function AddressDetailsPanel({ selectedNode }: AddressDetailsPane
               <label className="mb-2 block text-xs font-medium text-gray-500">
                 Recent Transactions ({addressData.txs.length})
               </label>
-              <div className="flex-1 space-y-3 overflow-y-auto min-h-0">
+              <div className="flex-1 space-y-3 overflow-y-auto min-h-0" style={{ paddingRight: '5px' }}>
                 {addressData.txs.map((tx) => (
                   <div key={tx.hash} className="rounded border border-gray-200 p-3 text-sm">
                     <div className="mb-2 flex items-center justify-between">
@@ -191,7 +198,7 @@ export default function AddressDetailsPanel({ selectedNode }: AddressDetailsPane
                 <button
                   onClick={handleLoadMore}
                   disabled={loading}
-                  className="w-full rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:bg-gray-400"
+                  className="mt-2 w-full rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:bg-gray-400"
                 >
                   {loading ? 'Loading...' : 'Load More Transactions'}
                 </button>

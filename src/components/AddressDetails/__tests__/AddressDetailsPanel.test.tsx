@@ -117,4 +117,42 @@ describe('AddressDetailsPanel', () => {
       expect(BlockchainService.getAddressDetails).toHaveBeenLastCalledWith(newNode.id, 10, 0);
     });
   });
+
+  describe('Load More Feature', () => {
+    it('should call onUpdateGraph when Load More Transactions is clicked', async () => {
+      vi.mocked(BlockchainService.getAddressDetails).mockResolvedValue(mockAddressData);
+      const mockOnUpdateGraph = vi.fn();
+
+      render(<AddressDetailsPanel selectedNode={mockNode} onUpdateGraph={mockOnUpdateGraph} />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Load More Transactions/i)).toBeInTheDocument();
+      });
+
+      const loadMoreButton = screen.getByText(/Load More Transactions/i);
+      loadMoreButton.click();
+
+      await waitFor(() => {
+        expect(mockOnUpdateGraph).toHaveBeenCalledWith(mockNode.id, 10);
+      });
+    });
+
+    it('should not call onUpdateGraph if not provided', async () => {
+      vi.mocked(BlockchainService.getAddressDetails).mockResolvedValue(mockAddressData);
+
+      render(<AddressDetailsPanel selectedNode={mockNode} />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Load More Transactions/i)).toBeInTheDocument();
+      });
+
+      const loadMoreButton = screen.getByText(/Load More Transactions/i);
+      loadMoreButton.click();
+
+      // Should not throw error
+      await waitFor(() => {
+        expect(screen.getByText(/Load More Transactions/i)).toBeInTheDocument();
+      });
+    });
+  });
 });

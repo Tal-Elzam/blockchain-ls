@@ -97,7 +97,19 @@ function BlockchainGraphInner({
     // Create edges in React Flow format
     const rfEdges: Edge[] = data.links.map((link, index) => {
       const valueInBTC = link.value / 100000000;
-      const width = Math.min(Math.max(valueInBTC / 10, 1), 5);
+      // Use square root for more subtle scaling: small values ~1, large values ~3
+      const width = Math.min(Math.max(Math.sqrt(valueInBTC) * 0.5 + 0.8, 1), 3.5);
+
+      // Determine edge color based on direction relative to selected node
+      // Red = outgoing (selected node is source), Blue = incoming (selected node is target)
+      let edgeColor = '#475569'; // Default gray
+      if (selectedId) {
+        if (link.source === selectedId) {
+          edgeColor = '#ef4444'; // Red for outgoing
+        } else if (link.target === selectedId) {
+          edgeColor = '#3b82f6'; // Blue for incoming
+        }
+      }
 
       return {
         id: `${link.source}-${link.target}-${index}`,
@@ -106,12 +118,12 @@ function BlockchainGraphInner({
         type: 'straight',
         animated: false,
         style: {
-          stroke: '#475569',
+          stroke: edgeColor,
           strokeWidth: width,
         },
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          color: '#475569',
+          color: edgeColor,
           width: 30,
           height: 30,
         },
@@ -286,6 +298,19 @@ function BlockchainGraphInner({
       <div className="absolute bottom-4 left-4 rounded bg-black/70 px-3 py-1 text-xs text-white">
         {graphData.nodes.length} nodes • {graphData.links.length} links
       </div>
+      {selectedNode && (
+        <div className="absolute top-4 right-4 rounded bg-white/90 px-3 py-2 text-xs shadow-md border border-gray-200">
+          <div className="font-semibold mb-1 text-gray-700">Edge Colors:</div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-4 h-0.5 bg-red-500"></div>
+            <span className="text-gray-600">Outgoing</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-0.5 bg-blue-500"></div>
+            <span className="text-gray-600">Incoming</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

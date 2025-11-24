@@ -11,12 +11,15 @@ import { BlockchainService, isValidBitcoinAddress } from '@/lib/services/blockch
 import type { GraphData, GraphNode } from '@/lib/types/blockchain';
 
 export default function Home() {
-  const [address, setAddress] = useState('');
+  const [address, setAddress] = useState(''); // The central/initial address
   const [inputValue, setInputValue] = useState('');
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expandCount, setExpandCount] = useState(0); // Track number of expansions
+  const [expandLoading, setExpandLoading] = useState(false);
+  const MAX_EXPANSIONS = 3; // Maximum 3 expansions (total 80 transactions: 50 + 10 + 10 + 10)
 
   const handleSearch = useCallback(async () => {
     const trimmedAddress = inputValue.trim();
@@ -35,6 +38,7 @@ export default function Home() {
     setSelectedNode(null);
     setError(null);
     setLoading(true);
+    setExpandCount(0); // Reset expansion count on new search
 
     try {
       const data = await BlockchainService.getAddressGraph(trimmedAddress, 50, 0);
@@ -68,6 +72,73 @@ export default function Home() {
   const handleNodeClick = useCallback((node: GraphNode | null) => {
     setSelectedNode(node);
   }, []);
+
+  const handleExpandGraph = useCallback(async () => {
+    if (!address) return;
+
+    // Check if reached maximum expansions
+    if (expandCount >= MAX_EXPANSIONS) {
+      setError(`Maximum expansions reached (${MAX_EXPANSIONS}). Total ${50 + expandCount * 10} transactions loaded.`);
+      return;
+    }
+
+    setExpandLoading(true);
+    setError(null);
+
+    try {
+      // Calculate offset: initial 50 + (expandCount * 10)
+      const offset = 50 + expandCount * 10;
+
+      const newData = await BlockchainService.getAddressGraph(address, 10, offset);
+
+      const existingNodeIds = new Set(graphData.nodes.map((n) => n.id));
+      const newNodes = newData.nodes.filter((n) => !existingNodeIds.has(n.id));
+
+      const updatedGraphData: GraphData = {
+        nodes: [...graphData.nodes, ...newNodes],
+        links: [...graphData.links, ...newData.links],
+      };
+
+      setGraphData(updatedGraphData);
+      setExpandCount((prev) => prev + 1);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to expand graph';
+
+      if (errorMessage.includes('429') || errorMessage.includes('Too many requests')) {
+        setError('Too many requests. Please wait before expanding.');
+      } else if (errorMessage.includes('503') || errorMessage.includes('Service Unavailable')) {
+        setError('Blockchain API is temporarily unavailable. Please try again later.');
+      } else {
+        setError(errorMessage);
+      }
+    } finally {
+      setExpandLoading(false);
+    }
+  }, [graphData, expandCount, address, MAX_EXPANSIONS]);
+
+  const handleUpdateGraphFromTransactions = useCallback(
+    async (nodeId: string, offset: number) => {
+      try {
+        // Fetch additional transactions and update graph
+        const newData = await BlockchainService.getAddressGraph(nodeId, 10, offset);
+
+        // Merge new nodes with existing ones, avoiding duplicates
+        const existingNodeIds = new Set(graphData.nodes.map((n) => n.id));
+        const newNodes = newData.nodes.filter((n) => !existingNodeIds.has(n.id));
+
+        // Merge links
+        const updatedGraphData: GraphData = {
+          nodes: [...graphData.nodes, ...newNodes],
+          links: [...graphData.links, ...newData.links],
+        };
+
+        setGraphData(updatedGraphData);
+      } catch (err) {
+        console.error('Failed to update graph from transactions:', err);
+      }
+    },
+    [graphData]
+  );
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -124,6 +195,39 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Graph Expansion Controls */}
+          {address && (
+            <div className="rounded-lg border border-gray-300 bg-white p-4 shadow-sm"
+            style={{ marginBottom: '20px'}} >
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <div className="mb-1 text-xs font-medium text-gray-500">Central Address</div>
+                  <div className="font-mono text-sm text-gray-900">{address}</div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <div className="text-xs text-gray-500">Expansions</div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      {expandCount} / {MAX_EXPANSIONS}
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleExpandGraph}
+                    disabled={expandLoading || expandCount >= MAX_EXPANSIONS}
+                    className="rounded-md bg-green-600 px-6 py-2 font-medium text-white hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    title={
+                      expandCount >= MAX_EXPANSIONS
+                        ? `Maximum expansions reached`
+                        : `Expand graph with 10 more transactions from central address`
+                    }
+                  >
+                    {expandLoading ? 'Expanding...' : expandCount >= MAX_EXPANSIONS ? 'Max Reached' : 'Expand Graph'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Graph and Details Section */}
           {address && (
             <div className="grid gap-6 lg:grid-cols-3">
@@ -140,7 +244,7 @@ export default function Home() {
 
               {/* Address Details - Takes 1/3 of the width */}
               <div className="lg:col-span-1">
-                <AddressDetailsPanel selectedNode={selectedNode} />
+                <AddressDetailsPanel selectedNode={selectedNode} onUpdateGraph={handleUpdateGraphFromTransactions} />
               </div>
             </div>
           )}
@@ -166,7 +270,7 @@ export default function Home() {
         {/* Footer */}
         <footer
           className="w-full border-t border-gray-200 bg-white flex items-center justify-center py-2"
-          style={{ minHeight: '60px' }}
+          style={{ minHeight: '60px',marginTop: '20px' }} 
         >
           <div className="text-center text-sm text-gray-600">
             Blockchain Investigator - Built with Next.js & FastAPI

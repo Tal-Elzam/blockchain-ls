@@ -74,6 +74,9 @@ A powerful full-stack application for investigating Bitcoin blockchain transacti
 ### Frontend (Next.js + React)
 
 - **Interactive Graph Visualization** - D3-Force physics simulation with ReactFlow
+- **Dynamic Graph Expansion** - Expand central address with performance limits (max 80 transactions)
+- **Color-Coded Edges** - Visual distinction between incoming (blue) and outgoing (red) transactions
+- **Expansion Controls** - Clear UI showing expansion count and limits
 - **Real-time Transaction Tracking** - Live updates of blockchain transactions
 - **Address Details Panel** - Comprehensive view of wallet information
 - **API Call Logging** - Monitor all backend requests in real-time
@@ -97,6 +100,66 @@ A powerful full-stack application for investigating Bitcoin blockchain transacti
 - **Unit Tests**: Services, utilities, and helpers
 - **Integration Tests**: API endpoints and components
 - **Component Tests**: React components with mocking
+
+## How to Use the Graph
+
+### Investigating Bitcoin Addresses
+
+1. **Initial Search**: Enter a Bitcoin address in the search bar and click "Investigate"
+   - The graph will display the address and its first 50 transactions
+   - Nodes represent Bitcoin addresses
+   - Edges (arrows) represent transaction flows
+
+2. **Expanding the Graph**: Use the expansion controls below the search bar
+   - Shows the central address and expansion counter (e.g., "1 / 3")
+   - Green **"Expand Graph"** button loads 10 more transactions from the central address
+   - **Maximum 3 expansions allowed** (total 80 transactions: 50 + 10 + 10 + 10)
+   - This limit prevents performance issues with large graphs
+   - Button becomes disabled after reaching maximum expansions
+
+3. **Loading More Transactions**: In the Address Details panel (right side)
+   - Click any node to view its details
+   - Click **"Load More Transactions"** to fetch additional transactions (10 at a time)
+   - New transactions are added to both the detail panel AND the graph
+   - This allows for deeper investigation of specific addresses
+
+### Understanding Edge Colors
+
+The graph uses color-coding to show transaction direction relative to the selected node:
+
+- 🔴 **Red Edges**: Outgoing transactions (selected address is sending money)
+- 🔵 **Blue Edges**: Incoming transactions (selected address is receiving money)
+
+**Visual Legend**: When a node is selected, a legend appears in the top-right corner of the graph showing the color meanings.
+
+### Example Investigation Flow
+
+```
+Step 1: Search for address "bc1ql3smp4dphdfxldzecjkj3h4vt8lw8payekxf7h"
+        → Graph shows the address and 50 initial transactions
+        → Expansion controls appear below search bar
+
+Step 2: Click "Expand Graph" button (below search bar)
+        → Loads 10 more transactions from central address
+        → Counter shows "1 / 3" expansions
+        → New nodes appear in the graph
+
+Step 3: Click "Expand Graph" again (2 more times available)
+        → Each click adds 10 more transactions
+        → Counter updates: "2 / 3", then "3 / 3"
+        → After 3 expansions, button becomes disabled (Max Reached)
+
+Step 4: Click any node to view its details
+        → Red edges = outgoing from selected node
+        → Blue edges = incoming to selected node
+        → Details panel shows balance and transactions
+
+Step 5: Click "Load More Transactions" in details panel
+        → Loads 10 more transactions for the selected node
+        → Updates both the panel and the graph
+
+Total capacity: 80 transactions from central address (50 + 30)
+```
 
 ## Quick Start
 

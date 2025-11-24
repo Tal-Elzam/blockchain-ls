@@ -156,4 +156,34 @@ describe('BlockchainGraph', () => {
 
     expect(screen.getByText(/3 nodes • 1 links/i)).toBeInTheDocument();
   });
+
+  describe('Edge Color Coding Feature', () => {
+    it('should display edge color legend when node is selected', () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const selectedNode: GraphNode = mockGraphData.nodes[0]!;
+      render(<BlockchainGraph graphData={mockGraphData} selectedNode={selectedNode} loading={false} />);
+
+      expect(screen.getByText(/Edge Colors:/i)).toBeInTheDocument();
+      expect(screen.getByText(/Outgoing/i)).toBeInTheDocument();
+      expect(screen.getByText(/Incoming/i)).toBeInTheDocument();
+    });
+
+    it('should not display edge color legend when no node is selected', () => {
+      render(<BlockchainGraph graphData={mockGraphData} selectedNode={null} loading={false} />);
+
+      expect(screen.queryByText(/Edge Colors:/i)).not.toBeInTheDocument();
+    });
+
+    it('should update legend when selectedNode changes', () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const selectedNode: GraphNode = mockGraphData.nodes[0]!;
+      const { rerender } = render(<BlockchainGraph graphData={mockGraphData} selectedNode={null} loading={false} />);
+
+      expect(screen.queryByText(/Edge Colors:/i)).not.toBeInTheDocument();
+
+      rerender(<BlockchainGraph graphData={mockGraphData} selectedNode={selectedNode} loading={false} />);
+
+      expect(screen.getByText(/Edge Colors:/i)).toBeInTheDocument();
+    });
+  });
 });
